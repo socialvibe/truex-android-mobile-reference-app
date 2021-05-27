@@ -1,4 +1,4 @@
-package com.truex.sheppard.ads;
+package com.truex.reference.ads;
 
 import android.content.Context;
 import android.util.Log;
@@ -6,7 +6,7 @@ import android.view.ViewGroup;
 
 import com.truex.adrenderer.IEventHandler;
 import com.truex.adrenderer.TruexAdRenderer;
-import com.truex.sheppard.player.PlaybackHandler;
+import com.truex.reference.player.PlaybackHandler;
 
 import org.json.JSONObject;
 
@@ -95,34 +95,34 @@ public class TruexAdManager {
 
 
     private IEventHandler adStarted = (Map<String, ?> data) -> {
-        Log.e("TruexAdManager", "adStarted");
+        Log.e(CLASSTAG, "adStarted");
     };
 
     private IEventHandler adCompleted = (Map<String, ?> data) -> {
-        Log.e("TruexAdManager", "adCompleted");
+        Log.e(CLASSTAG, "adCompleted");
         onCompletion();
     };
 
     private IEventHandler adError = (Map<String, ?> data) -> {
-        Log.e("TruexAdManager", "adError");
+        Log.e(CLASSTAG, "adError");
 
         // Error
         onCompletion();
     };
 
     private IEventHandler noAds = (Map<String, ?> data) -> {
-        Log.e("TruexAdManager", "noAds");
+        Log.e(CLASSTAG, "noAds");
 
         // There are no engagements available
         onCompletion();
     };
 
     private IEventHandler adFree = (Map<String, ?> data) -> {
-        Log.e("TruexAdManager", "adFree");
+        Log.e(CLASSTAG, "adFree");
         didReceiveCredit = true;
     };
 
     private IEventHandler popup = (Map<String, ?> data) -> {
-        Log.e("TruexAdManager", "popup");
+        Log.e(CLASSTAG, "popup");
     };
 }

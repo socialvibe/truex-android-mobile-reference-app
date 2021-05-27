@@ -1,4 +1,4 @@
-package com.truex.sheppard;
+package com.truex.reference;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -28,11 +28,11 @@ import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
-import com.truex.sheppard.ads.TruexAdManager;
-import com.truex.sheppard.player.DisplayMode;
-import com.truex.sheppard.player.PlaybackHandler;
-import com.truex.sheppard.player.PlaybackStateListener;
-import com.truex.sheppard.player.PlayerEventListener;
+import com.truex.reference.ads.TruexAdManager;
+import com.truex.reference.player.DisplayMode;
+import com.truex.reference.player.PlaybackHandler;
+import com.truex.reference.player.PlaybackStateListener;
+import com.truex.reference.player.PlayerEventListener;
 
 public class MainActivity extends AppCompatActivity implements PlaybackStateListener, PlaybackHandler {
     private static final String CLASSTAG = MainActivity.class.getSimpleName();

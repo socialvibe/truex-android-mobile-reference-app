@@ -1,4 +1,4 @@
-package com.truex.sheppard.player;
+package com.truex.reference.player;
 
 public interface PlaybackStateListener {
     void onPlayerDidStart();
