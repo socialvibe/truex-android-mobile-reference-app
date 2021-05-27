@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 
 import com.truex.adrenderer.IEventHandler;
 import com.truex.adrenderer.TruexAdRenderer;
+import com.truex.adrenderer.TruexAdRendererConstants;
 import com.truex.reference.player.PlaybackHandler;
 
 import org.json.JSONObject;
@@ -31,12 +32,15 @@ public class TruexAdManager {
         // Set-up the true[X] ad renderer
         truexAdRenderer = new TruexAdRenderer(context);
 
-        truexAdRenderer.addEventListener("AD_STARTED", this.adStarted);
-        truexAdRenderer.addEventListener("AD_COMPLETED", this.adCompleted);
-        truexAdRenderer.addEventListener("AD_ERROR", this.adError);
-        truexAdRenderer.addEventListener("NO_ADS_AVAILABLE", this.noAds);
-        truexAdRenderer.addEventListener("AD_FREE_POD", this.adFree);
-        truexAdRenderer.addEventListener("POPUP_WEBSITE", this.popup);
+        truexAdRenderer.addEventListener(TruexAdRendererConstants.AD_STARTED, this.adStarted);
+        truexAdRenderer.addEventListener(TruexAdRendererConstants.AD_COMPLETED, this.adCompleted);
+        truexAdRenderer.addEventListener(TruexAdRendererConstants.AD_ERROR, this.adError);
+        truexAdRenderer.addEventListener(TruexAdRendererConstants.NO_ADS_AVAILABLE, this.noAds);
+        truexAdRenderer.addEventListener(TruexAdRendererConstants.AD_FREE_POD, this.adFree);
+        truexAdRenderer.addEventListener(TruexAdRendererConstants.POPUP_WEBSITE, this.popup);
+        truexAdRenderer.addEventListener(TruexAdRendererConstants.OPT_IN, this.optIn);
+        truexAdRenderer.addEventListener(TruexAdRendererConstants.OPT_OUT, this.optOut);
+        truexAdRenderer.addEventListener(TruexAdRendererConstants.USER_CANCEL, this.userCancel);
     }
 
     /**
@@ -94,35 +98,90 @@ public class TruexAdManager {
     }
 
 
+    /*
+       Note: This event is triggered when the ad starts
+     */
     private IEventHandler adStarted = (Map<String, ?> data) -> {
-        Log.e(CLASSTAG, "adStarted");
+        Log.d(CLASSTAG, "adStarted");
     };
 
+    /*
+       Note: This event is triggered when the engagement is completed,
+       either by the completion of the engagement or the user exiting the engagement
+     */
     private IEventHandler adCompleted = (Map<String, ?> data) -> {
-        Log.e(CLASSTAG, "adCompleted");
+        Log.d(CLASSTAG, "adCompleted");
+
+        // We are now done with the engagement
         onCompletion();
     };
 
+    /*
+       Note: This event is triggered when an error is encountered by the true[X] ad renderer
+     */
     private IEventHandler adError = (Map<String, ?> data) -> {
-        Log.e(CLASSTAG, "adError");
+        Log.d(CLASSTAG, "adError");
 
-        // Error
+        // There was an error trying to load the enagement
         onCompletion();
     };
 
+    /*
+       Note: This event is triggered if the engagement fails to load,
+       as a result of there being no engagements available
+     */
     private IEventHandler noAds = (Map<String, ?> data) -> {
-        Log.e(CLASSTAG, "noAds");
+        Log.d(CLASSTAG, "noAds");
 
         // There are no engagements available
         onCompletion();
     };
 
+    /*
+       Note: This event is triggered when the viewer has earned their true[ATTENTION] credit. We
+       could skip over the linear ads here, so that when the ad is complete, all we would need
+       to do is resume the stream.
+     */
     private IEventHandler adFree = (Map<String, ?> data) -> {
-        Log.e(CLASSTAG, "adFree");
+        Log.d(CLASSTAG, "adFree");
         didReceiveCredit = true;
     };
 
+    /*
+       Note: This event is triggered when a user cancels an interactive engagement
+     */
+    private IEventHandler userCancel = (Map<String, ?> data) -> {
+        Log.d(CLASSTAG, "userCancel");
+    };
+
+    /*
+       Note: This event is triggered when a user opts-in to an interactive engagement
+     */
+    private IEventHandler optIn = (Map<String, ?> data) -> {
+        Log.d(CLASSTAG, "optIn");
+    };
+
+    /*
+       Note: This event is triggered when a user opts-out of an interactive engagement,
+       either by time-out, or by choice
+     */
+    private IEventHandler optOut = (Map<String, ?> data) -> {
+        Log.d(CLASSTAG, "optOut");
+    };
+
+    /*
+       Note: This event is triggered when a skip card is being displayed to the user
+       This occurs when a user is able to skip ads
+     */
+    private IEventHandler skipCardShown = (Map<String, ?> data) -> {
+        Log.d(CLASSTAG, "skipCardShown");
+    };
+
+    /*
+        Note: This event is triggered when a popup is to be displayed
+        Publisher app will be responsible for opening another web view and pause/resume the ad as necessary
+    */
     private IEventHandler popup = (Map<String, ?> data) -> {
-        Log.e(CLASSTAG, "popup");
+        Log.d(CLASSTAG, "popup");
     };
 }
