@@ -1,8 +1,8 @@
-# Sheppard
+# Truex-Android-Mobile-Reference-App
 
-## Reference app for Android TV and Fire TV TAR (TruexAdRenderer) integration
+## Reference app for Android Mobile (TruexAdRenderer) integration
 
-This is an Android TV and Fire TV application exposing direct calls into `TruexAdRenderer` instances, enabling functional testing as well as prototyping. The application is set up with a simple activity and the calls in the `MainActivity` should be self-explanatory.
+This is an Android Mobile application exposing direct calls into `TruexAdRenderer` instances, enabling functional testing as well as prototyping. The application is set up with a simple activity and the calls in the `MainActivity` should be self-explanatory.
 
 ## Setup
 
@@ -12,12 +12,12 @@ This is an Android TV and Fire TV application exposing direct calls into `TruexA
 
 ### Install Steps
 
-* Clone the `master` branch of the `Sheppard` repository
-    * `git clone https://github.com/socialvibe/Sheppard.git`
+* Clone the `master` branch of the `truex-android-mobile-reference-app` repository
+    * `git clone https://github.com/socialvibe/truex-android-mobile-reference-app.git`
 
-* Open Sheppard with Android Studio
+* Open truex-android-mobile-reference-app with Android Studio
     * Open Android Studio
-    * Select `Open an existing Android Studio project` and select the Sheppard folder
+    * Select `Open an existing Android Studio project` and select the truex-android-mobile-reference-app folder
 
 
 ### Run Steps
