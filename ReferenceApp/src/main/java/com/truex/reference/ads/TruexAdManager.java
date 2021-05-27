@@ -22,8 +22,8 @@ public class TruexAdManager {
     private static final String CLASSTAG = TruexAdManager.class.getSimpleName();
 
     private PlaybackHandler playbackHandler;
-    private boolean didReceiveCredit;
     private TruexAdRenderer truexAdRenderer;
+    private boolean didReceiveCredit;
 
     public TruexAdManager(Context context, PlaybackHandler playbackHandler) {
         this.playbackHandler = playbackHandler;
@@ -49,15 +49,15 @@ public class TruexAdManager {
      */
     public void startAd(ViewGroup viewGroup) {
         String vastConfigUrl = "https://qa-get.truex.com/f7e02f55ada3e9d2e7e7f22158ce135f9fba6317/vast/config?dimension_2=1&stream_position=midroll";
+        String slotType = TruexAdRendererConstants.PREROLL;
         JSONObject options = new JSONObject();
+
         try {
-            options.put("vast_config_url", vastConfigUrl);
+            options.put("slotType", slotType);
             options.put("placement_hash", "temporary_hash");
         } catch (Exception e) {}
-
-        String slotType = "PREROLL";
-
-        truexAdRenderer.init(options, slotType);
+        
+        truexAdRenderer.init(vastConfigUrl, options);
         truexAdRenderer.start(viewGroup);
     }
 
