@@ -34,6 +34,7 @@ public class TruexAdManager {
         truexAdRenderer = new TruexAdRenderer(context);
 
         // Set-up the event listeners
+        // TODO: Possibly setup a single event listener instead
         truexAdRenderer.addEventListener(TruexAdEvent.AD_STARTED, this.adStarted);
         truexAdRenderer.addEventListener(TruexAdEvent.AD_COMPLETED, this.adCompleted);
         truexAdRenderer.addEventListener(TruexAdEvent.AD_ERROR, this.adError);
@@ -43,6 +44,7 @@ public class TruexAdManager {
         truexAdRenderer.addEventListener(TruexAdEvent.OPT_IN, this.optIn);
         truexAdRenderer.addEventListener(TruexAdEvent.OPT_OUT, this.optOut);
         truexAdRenderer.addEventListener(TruexAdEvent.SKIP_CARD_SHOWN, this.skipCardShown);
+        truexAdRenderer.addEventListener(TruexAdEvent.POP_UP, this.popUp);
     }
 
     /**
@@ -50,7 +52,7 @@ public class TruexAdManager {
      * @param viewGroup - the view group in which you would like to display the true[X] engagement
      */
     public void startAd(ViewGroup viewGroup) {
-        String vastConfigUrl = "https://qa-get.truex.com/81551ffa2b851abc5372ab9ed9f1f58adabe5203/vast/config?asnw=&flag=%2Bamcb%2Bemcr%2Bslcb%2Bvicb%2Baeti-exvt&fw_key_values=&metr=0&prof=g_as3_truex&ptgt=a&pvrn=&resp=vmap1&slid=fw_truex&ssnw=&vdur=&vprn=";
+        String vastConfigUrl = "https://qa-get.truex.com/f7e02f55ada3e9d2e7e7f22158ce135f9fba6317/vast/config?dimension_2=1&stream_position=midroll";
 
         TruexAdOptions options = new TruexAdOptions();
         options.supportsUserCancelStream = true;
@@ -175,5 +177,13 @@ public class TruexAdManager {
      */
     private IEventHandler skipCardShown = (TruexAdEvent event, Map<String, ?> data) -> {
         Log.d(CLASSTAG, "skipCardShown");
+    };
+
+    /*
+        Note: This event is triggered when a pop up is to be displayed.  Publisher app is
+        responsible for pausing/resuming the Truex Ad Renderer
+    */
+    private IEventHandler popUp = (TruexAdEvent event, Map<String, ?> data) -> {
+        Log.d(CLASSTAG, "popUp");
     };
 }
