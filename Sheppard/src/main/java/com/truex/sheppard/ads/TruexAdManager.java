@@ -34,7 +34,6 @@ public class TruexAdManager {
         truexAdRenderer = new TruexAdRenderer(context);
 
         // Set-up the event listeners
-        // TODO: Possibly setup a single event listener instead
         truexAdRenderer.addEventListener(TruexAdEvent.AD_STARTED, this.adStarted);
         truexAdRenderer.addEventListener(TruexAdEvent.AD_COMPLETED, this.adCompleted);
         truexAdRenderer.addEventListener(TruexAdEvent.AD_ERROR, this.adError);
@@ -56,8 +55,8 @@ public class TruexAdManager {
 
         TruexAdOptions options = new TruexAdOptions();
         options.supportsUserCancelStream = true;
-        //options.userAdvertisingId = "1234"; // for testing.
         options.fallbackAdvertisingId = UUID.randomUUID().toString();
+        options.slotType = "midroll";
 
         truexAdRenderer.init(vastConfigUrl, options);
         truexAdRenderer.start(viewGroup);
