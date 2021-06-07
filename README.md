@@ -1,4 +1,4 @@
-# Sheppard
+# Truex Reference App
 
 ## Reference app for Android TV and Fire TV TAR (TruexAdRenderer) integration
 
@@ -12,13 +12,12 @@ This is an Android TV and Fire TV application exposing direct calls into `TruexA
 
 ### Install Steps
 
-* Clone the `master` branch of the `Sheppard` repository
-    * `git clone https://github.com/socialvibe/Sheppard.git`
+* Clone the `master` branch of the `ReferenceApp` repository
+    * `git clone https://github.com/socialvibe/truex-android-mobile-reference-app.git`
 
-* Open Sheppard with Android Studio
+* Open ReferenceApp with Android Studio
     * Open Android Studio
-    * Select `Open an existing Android Studio project` and select the Sheppard folder
-
+    * Select `Open an existing Android Studio project` and select the ReferenceApp folder
 
 ### Run Steps
 
