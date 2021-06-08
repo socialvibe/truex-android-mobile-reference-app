@@ -55,8 +55,7 @@ public class TruexAdManager {
 
         TruexAdOptions options = new TruexAdOptions();
         options.supportsUserCancelStream = true;
-        options.fallbackAdvertisingId = UUID.randomUUID().toString();
-        options.slotType = "midroll";
+        options.userAdvertisingId = UUID.randomUUID().toString();
 
         truexAdRenderer.init(vastConfigUrl, options);
         truexAdRenderer.start(viewGroup);
