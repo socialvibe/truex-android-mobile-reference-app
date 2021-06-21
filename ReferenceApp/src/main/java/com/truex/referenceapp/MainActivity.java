@@ -26,15 +26,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void loadDetailFragment() {
         getSupportFragmentManager().beginTransaction()
-            .replace(R.id.activity_main, new DetailFragment())
-            .addToBackStack(null)
+            .add(R.id.activity_main, new DetailFragment())
             .commit();
-    }
-
-    private void loadPlayerFragment() {
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.activity_main, new PlayerFragment())
-                .addToBackStack(null)
-                .commit();
     }
 }
