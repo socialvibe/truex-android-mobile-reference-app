@@ -1,7 +1,6 @@
 package com.truex.referenceapp.detail;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,7 +9,6 @@ import android.widget.Button;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
-import com.truex.referenceapp.MainActivityOld;
 import com.truex.referenceapp.R;
 import com.truex.referenceapp.player.PlayerFragment;
 
