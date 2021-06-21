@@ -43,7 +43,7 @@ public class TruexAdManager {
         truexAdRenderer.addEventListener(TruexAdEvent.OPT_IN, this.optIn);
         truexAdRenderer.addEventListener(TruexAdEvent.OPT_OUT, this.optOut);
         truexAdRenderer.addEventListener(TruexAdEvent.SKIP_CARD_SHOWN, this.skipCardShown);
-        truexAdRenderer.addEventListener(TruexAdEvent.POP_UP, this.popUp);
+        truexAdRenderer.addEventListener(TruexAdEvent.POPUP_WEBSITE, this.popUp);
     }
 
     /**
