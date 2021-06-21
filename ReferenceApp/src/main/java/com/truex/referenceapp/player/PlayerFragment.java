@@ -51,7 +51,6 @@ public class PlayerFragment extends Fragment implements PlaybackHandler, Playbac
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
         return inflater.inflate(R.layout.fragment_player, container, false);
     }
 
