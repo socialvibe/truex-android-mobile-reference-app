@@ -46,6 +46,8 @@ public class MainActivity extends AppCompatActivity implements PlaybackStateList
     // This player view is used to display a fake stream that mimics actual video content
     private PlayerView playerView;
 
+    private Boolean isPaused;
+
     // The data-source factory is used to build media-sources
     private DataSource.Factory dataSourceFactory;
 
@@ -77,21 +79,23 @@ public class MainActivity extends AppCompatActivity implements PlaybackStateList
     @Override
     protected void onResume() {
         super.onResume();
+        this.isPaused = false;
 
-            // We need to inform the true[X] ad manager that the application has resumed
-            if (truexAdManager != null) {
-                truexAdManager.onResume();
-            }
+        // We need to inform the true[X] ad manager that the application has resumed
+        if (truexAdManager != null) {
+            truexAdManager.onResume();
+        }
 
-            // Resume video playback
-            if (playerView.getPlayer() != null && displayMode != DisplayMode.INTERACTIVE_AD) {
-                playerView.getPlayer().setPlayWhenReady(true);
-            }
+        // Resume video playback
+        if (playerView.getPlayer() != null && displayMode != DisplayMode.INTERACTIVE_AD) {
+            playerView.getPlayer().setPlayWhenReady(true);
+        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        this.isPaused = true;
 
             // We need to inform the true[X] ad manager that the application has paused
             if (truexAdManager != null) {
@@ -112,9 +116,18 @@ public class MainActivity extends AppCompatActivity implements PlaybackStateList
         if (truexAdManager != null) {
             truexAdManager.onStop();
         }
+    }
 
-        // Release the video player
-        closeStream();
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (truexAdManager != null) {
+            truexAdManager.onDestroy();
+        }
+
+         // Release the video player
+         closeStream();
     }
 
     /**
@@ -158,8 +171,15 @@ public class MainActivity extends AppCompatActivity implements PlaybackStateList
         if (playerView.getPlayer() == null) {
             return;
         }
+
         playerView.setVisibility(View.VISIBLE);
-        playerView.getPlayer().setPlayWhenReady(true);
+
+        // There exists a case where a user can trigger a pop up, but it will bring the user back
+        // To the player.  The pop up will trigger first, pausing the activity, but this guard is
+        // needed to make sure the player does not resume in the background
+        if (!this.isPaused) {
+            playerView.getPlayer().setPlayWhenReady(true);
+        }
     }
 
     /**
@@ -219,6 +239,15 @@ public class MainActivity extends AppCompatActivity implements PlaybackStateList
         ((SimpleExoPlayer)playerView.getPlayer()).prepare(adPod);
         playerView.getPlayer().setPlayWhenReady(true);
         playerView.setVisibility(View.VISIBLE);
+
+    }
+
+    @Override
+    public void handlePopup(String url) {
+        Log.d(CLASSTAG, "handlePopup: " + url);
+
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+        startActivity(browserIntent);
     }
 
     private void displayInteractiveAd() {

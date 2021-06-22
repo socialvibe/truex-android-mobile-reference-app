@@ -65,6 +65,7 @@ public class TruexAdManager {
      * Inform the true[X] ad renderer that the application has resumed
      */
     public void onResume() {
+        Log.d(CLASSTAG, "onResume");
         truexAdRenderer.resume();
     }
 
@@ -73,13 +74,23 @@ public class TruexAdManager {
      * Inform the true[X] ad renderer that the application has paused
      */
     public void onPause() {
+        Log.d(CLASSTAG, "onPause");
         truexAdRenderer.pause();
+
     }
 
     /**
      * Inform that the true[X] ad renderer that the application has stopped
      */
     public void onStop() {
+        Log.d(CLASSTAG, "onStop");
+    }
+
+    /**
+     * Inform that the true[X] ad renderer that the application has been destroyed
+     */
+    public void onDestroy() {
+        Log.d(CLASSTAG, "onDestroy");
         truexAdRenderer.stop();
     }
 
@@ -183,5 +194,8 @@ public class TruexAdManager {
     */
     private IEventHandler popUp = (TruexAdEvent event, Map<String, ?> data) -> {
         Log.d(CLASSTAG, "popUp");
+
+        String url = (String)data.get("url");
+        playbackHandler.handlePopup(url);
     };
 }
