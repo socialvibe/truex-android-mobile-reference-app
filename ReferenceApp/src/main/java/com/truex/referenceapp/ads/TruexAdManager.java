@@ -1,4 +1,4 @@
-package com.truex.sheppard.ads;
+package com.truex.referenceapp.ads;
 
 import android.content.Context;
 import android.util.Log;
@@ -8,7 +8,7 @@ import com.truex.adrenderer.IEventEmitter.IEventHandler;
 import com.truex.adrenderer.TruexAdEvent;
 import com.truex.adrenderer.TruexAdOptions;
 import com.truex.adrenderer.TruexAdRenderer;
-import com.truex.sheppard.player.PlaybackHandler;
+import com.truex.referenceapp.player.PlaybackHandler;
 
 import java.util.Map;
 import java.util.UUID;
@@ -43,6 +43,7 @@ public class TruexAdManager {
         truexAdRenderer.addEventListener(TruexAdEvent.OPT_IN, this.optIn);
         truexAdRenderer.addEventListener(TruexAdEvent.OPT_OUT, this.optOut);
         truexAdRenderer.addEventListener(TruexAdEvent.SKIP_CARD_SHOWN, this.skipCardShown);
+        truexAdRenderer.addEventListener(TruexAdEvent.POPUP_WEBSITE, this.popUp);
     }
 
     /**
@@ -50,12 +51,11 @@ public class TruexAdManager {
      * @param viewGroup - the view group in which you would like to display the true[X] engagement
      */
     public void startAd(ViewGroup viewGroup) {
-        String vastConfigUrl = "https://qa-get.truex.com/81551ffa2b851abc5372ab9ed9f1f58adabe5203/vast/config?asnw=&flag=%2Bamcb%2Bemcr%2Bslcb%2Bvicb%2Baeti-exvt&fw_key_values=&metr=0&prof=g_as3_truex&ptgt=a&pvrn=&resp=vmap1&slid=fw_truex&ssnw=&vdur=&vprn=";
+        String vastConfigUrl = "https://qa-get.truex.com/f7e02f55ada3e9d2e7e7f22158ce135f9fba6317/vast/config?dimension_2=1&stream_position=midroll";
 
         TruexAdOptions options = new TruexAdOptions();
         options.supportsUserCancelStream = true;
-        //options.userAdvertisingId = "1234"; // for testing.
-        options.fallbackAdvertisingId = UUID.randomUUID().toString();
+        options.userAdvertisingId = UUID.randomUUID().toString();
 
         truexAdRenderer.init(vastConfigUrl, options);
         truexAdRenderer.start(viewGroup);
@@ -175,5 +175,13 @@ public class TruexAdManager {
      */
     private IEventHandler skipCardShown = (TruexAdEvent event, Map<String, ?> data) -> {
         Log.d(CLASSTAG, "skipCardShown");
+    };
+
+    /*
+        Note: This event is triggered when a pop up is to be displayed.  Publisher app is
+        responsible for pausing/resuming the Truex Ad Renderer
+    */
+    private IEventHandler popUp = (TruexAdEvent event, Map<String, ?> data) -> {
+        Log.d(CLASSTAG, "popUp");
     };
 }
