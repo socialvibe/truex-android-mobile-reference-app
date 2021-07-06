@@ -8,7 +8,6 @@ import com.truex.adrenderer.IEventEmitter.IEventHandler;
 import com.truex.adrenderer.TruexAdEvent;
 import com.truex.adrenderer.TruexAdOptions;
 import com.truex.adrenderer.TruexAdRenderer;
-import com.truex.adrenderer.util.TruexException;
 import com.truex.referenceapp.player.PlaybackHandler;
 
 import java.util.Map;
@@ -67,8 +66,7 @@ public class TruexAdManager {
      */
     public void onResume() {
         Log.d(CLASSTAG, "onResume");
-        try { truexAdRenderer.resume(); }
-        catch (TruexException e) { }
+        truexAdRenderer.resume();
     }
 
 
@@ -77,8 +75,7 @@ public class TruexAdManager {
      */
     public void onPause() {
         Log.d(CLASSTAG, "onPause");
-        try { truexAdRenderer.pause(); }
-        catch (TruexException e) { }
+        truexAdRenderer.pause();
 
     }
 
@@ -94,8 +91,7 @@ public class TruexAdManager {
      */
     public void onDestroy() {
         Log.d(CLASSTAG, "onDestroy");
-        try { truexAdRenderer.destroy(); }
-        catch (TruexException e) { }
+        truexAdRenderer.destroy();
     }
 
     /**
