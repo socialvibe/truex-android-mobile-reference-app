@@ -91,7 +91,7 @@ public class TruexAdManager {
      */
     public void onDestroy() {
         Log.d(CLASSTAG, "onDestroy");
-        truexAdRenderer.stop();
+        truexAdRenderer.destroy();
     }
 
     /**
