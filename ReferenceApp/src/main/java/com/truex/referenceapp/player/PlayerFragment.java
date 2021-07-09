@@ -29,10 +29,10 @@ import com.truex.referenceapp.ads.TruexAdManager;
 
 public class PlayerFragment extends Fragment implements PlaybackHandler, PlaybackStateListener {
     private static final String CLASSTAG = "PlayerFragment";
-    private static final String CONTENT_STREAM_URL = "https://media.truex.com/file_assets/2019-01-30/4ece0ae6-4e93-43a1-a873-936ccd3c7ede.mp4";
-    private static final String AD_URL_ONE = "https://media.truex.com/file_assets/2019-01-30/eb27eae5-c9da-4a9b-9420-a83c986baa0b.mp4";
-    private static final String AD_URL_TWO = "https://media.truex.com/file_assets/2019-01-30/7fe9da33-6b9e-446d-816d-e1aec51a3173.mp4";
-    private static final String AD_URL_THREE = "https://media.truex.com/file_assets/2019-01-30/742eb926-6ec0-48b4-b1e6-093cee334dd1.mp4";
+    private static final String CONTENT_STREAM_URL = "https://ctv.truex.com/assets/reference-app-stream-no-ads-720p.mp4";
+    private static final String AD_URL_ONE = "https://ctv.truex.com/assets/coffee-720p.mp4";
+    private static final String AD_URL_TWO = "https://ctv.truex.com/assets/airline-720p.mp4";
+    private static final String AD_URL_THREE = "https://ctv.truex.com/assets/petcare-720p.mp4";
 
     // This player view is used to display a fake stream that mimics actual video content
     private PlayerView playerView;
