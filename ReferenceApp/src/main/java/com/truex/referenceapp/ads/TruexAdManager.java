@@ -34,6 +34,7 @@ public class TruexAdManager {
         truexAdRenderer = new TruexAdRenderer(context);
 
         // Set-up the event listeners
+        truexAdRenderer.addEventListener(TruexAdEvent.AD_FETCH_COMPLETED, this.adFetchCompleted);
         truexAdRenderer.addEventListener(TruexAdEvent.AD_STARTED, this.adStarted);
         truexAdRenderer.addEventListener(TruexAdEvent.AD_COMPLETED, this.adCompleted);
         truexAdRenderer.addEventListener(TruexAdEvent.AD_ERROR, this.adError);
@@ -57,8 +58,8 @@ public class TruexAdManager {
         options.supportsUserCancelStream = true;
         options.userAdvertisingId = UUID.randomUUID().toString();
 
-        truexAdRenderer.init(vastConfigUrl, options);
-        truexAdRenderer.start(viewGroup);
+        // Alternatively, see various overloaded TAR init for passing a VastJson directly
+        truexAdRenderer.init(vastConfigUrl, options, () -> { truexAdRenderer.start(viewGroup); });
     }
 
     /**
@@ -108,6 +109,13 @@ public class TruexAdManager {
             playbackHandler.displayLinearAds();
         }
     }
+
+    /*
+       Note: This event is triggered when the init call is finished, and the ad is fetched/ready
+     */
+    private IEventHandler adFetchCompleted = (TruexAdEvent event, Map<String, ?> data) -> {
+        Log.d(CLASSTAG, "adFetchCompleted");
+    };
 
     /*
        Note: This event is triggered when the ad starts
