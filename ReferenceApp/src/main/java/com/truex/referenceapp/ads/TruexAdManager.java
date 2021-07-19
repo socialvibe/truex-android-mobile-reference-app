@@ -61,21 +61,26 @@ public class TruexAdManager {
         if (useGoogleAdId) {
             getAsyncAdvertisingId((adId) -> {
                 // Note to use the random UUID flow if not receiving a choice card after going through a Truex Engagement
-                initializeTruexAd(viewGroup, adId);
+                startAd(viewGroup, adId);
             });
         } else {
-            initializeTruexAd(viewGroup, UUID.randomUUID().toString());
+            startAd(viewGroup, UUID.randomUUID().toString());
         }
     }
 
-    private void initializeTruexAd(ViewGroup view, String adId) {
+    /**
+     * Start displaying the true[X] engagement
+     * @param viewGroup - the view group in which you would like to display the true[X] engagement
+     * @param adId - Optional advertisement id to pass to the Truex Ad Renderer
+     */
+    private void startAd(ViewGroup viewGroup, String adId) {
         String vastConfigUrl = "https://qa-get.truex.com/f7e02f55ada3e9d2e7e7f22158ce135f9fba6317/vast/config?dimension_2=1&stream_position=midroll&network_user_id=58e51b30-bb18-4697-9ebf-392033a39078";
 
         TruexAdOptions options = new TruexAdOptions();
         options.userAdvertisingId = adId;
 
         // Alternatively, see various overloaded TAR init for passing a VastJson directly
-        truexAdRenderer.init(vastConfigUrl, options, () -> { truexAdRenderer.start(view); });
+        truexAdRenderer.init(vastConfigUrl, options, () -> { truexAdRenderer.start(viewGroup); });
     }
 
     /**
@@ -224,6 +229,12 @@ public class TruexAdManager {
         playbackHandler.handlePopup(url);
     };
 
+
+    /*
+        Sample integration for how to get the Android advertising id that can be passed to TAR
+        Note that in most cases, this should not be needed because the Vast URL passed into TAR
+        should already contain the advertising id.  Nevertheless, it is available.
+    */
     private void getAsyncAdvertisingId(NativeAdIdCallback callback) {
         AsyncTask.execute(() -> {
             try {
