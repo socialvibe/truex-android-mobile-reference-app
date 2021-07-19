@@ -28,12 +28,11 @@ public class TruexAdManager {
     private boolean didReceiveCredit;
     private TruexAdRenderer truexAdRenderer;
     private Context context;
-    private String advertisingId;
+    private boolean useGoogleAdId = true;
 
     public TruexAdManager(Context context, PlaybackHandler playbackHandler) {
         this.playbackHandler = playbackHandler;
         this.context = context;
-        getAsyncAdvertisingId();
 
         didReceiveCredit = false;
 
@@ -59,13 +58,24 @@ public class TruexAdManager {
      * @param viewGroup - the view group in which you would like to display the true[X] engagement
      */
     public void startAd(ViewGroup viewGroup) {
-        String vastConfigUrl = "https://qa-get.truex.com/f7e02f55ada3e9d2e7e7f22158ce135f9fba6317/vast/config?dimension_2=1&stream_position=midroll";
+        if (useGoogleAdId) {
+            getAsyncAdvertisingId((adId) -> {
+                // Note to use the random UUID flow if not receiving a choice card after going through a Truex Engagement
+                initializeTruexAd(viewGroup, adId);
+            });
+        } else {
+            initializeTruexAd(viewGroup, UUID.randomUUID().toString());
+        }
+    }
+
+    private void initializeTruexAd(ViewGroup view, String adId) {
+        String vastConfigUrl = "https://qa-get.truex.com/f7e02f55ada3e9d2e7e7f22158ce135f9fba6317/vast/config?dimension_2=1&stream_position=midroll&network_user_id=58e51b30-bb18-4697-9ebf-392033a39078";
 
         TruexAdOptions options = new TruexAdOptions();
-        options.userAdvertisingId = UUID.randomUUID().toString();
+        options.userAdvertisingId = adId;
 
         // Alternatively, see various overloaded TAR init for passing a VastJson directly
-        truexAdRenderer.init(vastConfigUrl, options, () -> { truexAdRenderer.start(viewGroup); });
+        truexAdRenderer.init(vastConfigUrl, options, () -> { truexAdRenderer.start(view); });
     }
 
     /**
@@ -214,18 +224,19 @@ public class TruexAdManager {
         playbackHandler.handlePopup(url);
     };
 
-    private void getAsyncAdvertisingId() {
+    private void getAsyncAdvertisingId(NativeAdIdCallback callback) {
         AsyncTask.execute(() -> {
             try {
                 AdvertisingIdClient.Info info =  AdvertisingIdClient.getAdvertisingIdInfo(context);
                 if (!info.isLimitAdTrackingEnabled()) {
-                    this.advertisingId = info.getId();
+                    callback.onComplete(info.getId());
                 } else {
-                    this.advertisingId = UUID.randomUUID().toString();
+                    callback.onComplete(UUID.randomUUID().toString());
                 }
             } catch (Exception e) {
-                this.advertisingId = UUID.randomUUID().toString();
+                callback.onComplete(UUID.randomUUID().toString());
             }
         });
     }
 }
+
