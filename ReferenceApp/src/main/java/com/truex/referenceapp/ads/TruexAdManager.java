@@ -242,10 +242,10 @@ public class TruexAdManager {
                 if (!info.isLimitAdTrackingEnabled()) {
                     callback.onComplete(info.getId());
                 } else {
-                    callback.onComplete(UUID.randomUUID().toString());
+                    callback.onComplete(null);
                 }
             } catch (Exception e) {
-                callback.onComplete(UUID.randomUUID().toString());
+                callback.onComplete(null);
             }
         });
     }
