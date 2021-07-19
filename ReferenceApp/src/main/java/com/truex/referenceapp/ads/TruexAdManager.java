@@ -1,8 +1,11 @@
 package com.truex.referenceapp.ads;
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.util.Log;
 import android.view.ViewGroup;
+
+import com.google.android.gms.ads.identifier.AdvertisingIdClient;
 
 import com.truex.adrenderer.IEventEmitter.IEventHandler;
 import com.truex.adrenderer.TruexAdEvent;
@@ -24,9 +27,13 @@ public class TruexAdManager {
     private PlaybackHandler playbackHandler;
     private boolean didReceiveCredit;
     private TruexAdRenderer truexAdRenderer;
+    private Context context;
+    private String advertisingId;
 
     public TruexAdManager(Context context, PlaybackHandler playbackHandler) {
         this.playbackHandler = playbackHandler;
+        this.context = context;
+        getAsyncAdvertisingId();
 
         didReceiveCredit = false;
 
@@ -55,7 +62,6 @@ public class TruexAdManager {
         String vastConfigUrl = "https://qa-get.truex.com/f7e02f55ada3e9d2e7e7f22158ce135f9fba6317/vast/config?dimension_2=1&stream_position=midroll";
 
         TruexAdOptions options = new TruexAdOptions();
-        options.supportsUserCancelStream = true;
         options.userAdvertisingId = UUID.randomUUID().toString();
 
         // Alternatively, see various overloaded TAR init for passing a VastJson directly
@@ -115,6 +121,7 @@ public class TruexAdManager {
      */
     private IEventHandler adFetchCompleted = (TruexAdEvent event, Map<String, ?> data) -> {
         Log.d(CLASSTAG, "adFetchCompleted");
+        // Truex Ad Renderer is ready to start()
     };
 
     /*
@@ -206,4 +213,19 @@ public class TruexAdManager {
         String url = (String)data.get("url");
         playbackHandler.handlePopup(url);
     };
+
+    private void getAsyncAdvertisingId() {
+        AsyncTask.execute(() -> {
+            try {
+                AdvertisingIdClient.Info info =  AdvertisingIdClient.getAdvertisingIdInfo(context);
+                if (!info.isLimitAdTrackingEnabled()) {
+                    this.advertisingId = info.getId();
+                } else {
+                    this.advertisingId = UUID.randomUUID().toString();
+                }
+            } catch (Exception e) {
+                this.advertisingId = UUID.randomUUID().toString();
+            }
+        });
+    }
 }
