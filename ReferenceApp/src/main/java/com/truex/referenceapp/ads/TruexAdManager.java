@@ -28,7 +28,6 @@ public class TruexAdManager {
     private boolean didReceiveCredit;
     private TruexAdRenderer truexAdRenderer;
     private Context context;
-    private boolean useGoogleAdId = true;
 
     public TruexAdManager(Context context, PlaybackHandler playbackHandler) {
         this.playbackHandler = playbackHandler;
@@ -58,29 +57,27 @@ public class TruexAdManager {
      * @param viewGroup - the view group in which you would like to display the true[X] engagement
      */
     public void startAd(ViewGroup viewGroup) {
-        if (useGoogleAdId) {
-            getAsyncAdvertisingId((adId) -> {
-                // Note to use the random UUID flow if not receiving a choice card after going through a Truex Engagement
-                startAd(viewGroup, adId);
-            });
-        } else {
-            startAd(viewGroup, UUID.randomUUID().toString());
-        }
+        getAsyncAdvertisingId((adId) -> {
+            startAd(viewGroup, getVastUrl(adId), adId);
+        });
     }
 
     /**
      * Start displaying the true[X] engagement
      * @param viewGroup - the view group in which you would like to display the true[X] engagement
-     * @param adId - Optional advertisement id to pass to the Truex Ad Renderer
+     * @param vastUrl - the vastUrl that comes from the ad service provider
+     * @param adId - Advertisement ID override.  Should be used if the ad payload is missing information.
      */
-    private void startAd(ViewGroup viewGroup, String adId) {
-        String vastConfigUrl = "https://qa-get.truex.com/f7e02f55ada3e9d2e7e7f22158ce135f9fba6317/vast/config?dimension_2=1&stream_position=midroll&network_user_id=58e51b30-bb18-4697-9ebf-392033a39078";
-
+    private void startAd(ViewGroup viewGroup, String vastUrl, String adId) {
         TruexAdOptions options = new TruexAdOptions();
+
+        // See java implementation details for more information on this property
         options.userAdvertisingId = adId;
 
-        // Alternatively, see various overloaded TAR init for passing a VastJson directly
-        truexAdRenderer.init(vastConfigUrl, options, () -> { truexAdRenderer.start(viewGroup); });
+        // After viewing a Truex Ad experience, there will could be a lockout period
+        // That prevents the same user from getting another Truex ad for some period of time
+        // To get around this for development, replace the adId with some different/random value
+        truexAdRenderer.init(vastUrl, options, () -> { truexAdRenderer.start(viewGroup); });
     }
 
     /**
@@ -136,7 +133,7 @@ public class TruexAdManager {
      */
     private IEventHandler adFetchCompleted = (TruexAdEvent event, Map<String, ?> data) -> {
         Log.d(CLASSTAG, "adFetchCompleted");
-        // Truex Ad Renderer is ready to start()
+        // Truex Ad Renderer is ready to start() if not started in the init callback
     };
 
     /*
@@ -245,9 +242,16 @@ public class TruexAdManager {
                     callback.onComplete(null);
                 }
             } catch (Exception e) {
+                Log.e(CLASSTAG, e.toString());
                 callback.onComplete(null);
             }
         });
+    }
+
+    // Note that this flow generally will exist in the player and an ad request would be made
+    // For simplicity, this is stubbed out
+    private String getVastUrl(String adUrl) {
+        return "https://qa-get.truex.com/f7e02f55ada3e9d2e7e7f22158ce135f9fba6317/vast/config?dimension_2=1&stream_position=midroll&network_user_id=" + adUrl;
     }
 }
 
