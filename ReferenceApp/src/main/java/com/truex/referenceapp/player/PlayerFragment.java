@@ -346,7 +346,7 @@ public class PlayerFragment extends Fragment implements PlaybackHandler, Playbac
         return playerView.getPlayer().getContentPosition();
     }
 
-    // Normally these comes from some ad server would be made
+    // Normally these comes from some ad server
     // For simplicity, this is stubbed out
     private String getVastPrerollUrl() {
         return "https://qa-get.truex.com/f7e02f55ada3e9d2e7e7f22158ce135f9fba6317/vast/config?dimension_2=0&stream_position=preroll&stream_id=12345";
