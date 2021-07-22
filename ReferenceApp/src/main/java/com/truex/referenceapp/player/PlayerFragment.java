@@ -3,6 +3,7 @@ package com.truex.referenceapp.player;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -47,6 +48,11 @@ public class PlayerFragment extends Fragment implements PlaybackHandler, Playbac
 
     // We need to identify whether or not the user is viewing ads or the content stream
     private DisplayMode displayMode;
+
+    // Timer/midroll properties
+    private Handler progressHandler = new Handler();
+    private Runnable checkMidroll = null;
+    private long resumePosition = 0;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -112,6 +118,8 @@ public class PlayerFragment extends Fragment implements PlaybackHandler, Playbac
             truexAdManager.onDestroy();
         }
 
+        cleanupProgressTimer();
+
         // Release the video player
         closeStream();
     }
@@ -121,7 +129,7 @@ public class PlayerFragment extends Fragment implements PlaybackHandler, Playbac
      * Display the true[X] engagement
      */
     public void onPlayerDidStart() {
-        displayInteractiveAd();
+        displayInteractiveAd(true);
     }
 
     /**
@@ -227,21 +235,25 @@ public class PlayerFragment extends Fragment implements PlaybackHandler, Playbac
         startActivity(browserIntent);
     }
 
-    private void displayInteractiveAd() {
-        Log.d(CLASSTAG, "displayInteractiveAds");
+    private void displayInteractiveAd(Boolean isPreroll) {
+        Log.d(CLASSTAG, "displayInteractiveAds: " + (isPreroll ? "preroll" : "midroll"));
         if (playerView.getPlayer() == null) {
             return;
         }
 
         // Pause the stream and display a true[X] engagement
         pauseStream();
+        Long position = getContentPosition();
+        if (position > 0) resumePosition = position;
 
         displayMode = DisplayMode.INTERACTIVE_AD;
 
         // Start the true[X] engagement
         ViewGroup viewGroup = (ViewGroup) getView();
         truexAdManager = new TruexAdManager(getContext(), this);
-        truexAdManager.startAd(viewGroup);
+
+        if (isPreroll) truexAdManager.startAd(viewGroup, getVastPrerollUrl());
+        else truexAdManager.startAd(viewGroup, getVastMidrollUrl());
     }
 
     private void displayContentStream() {
@@ -254,8 +266,12 @@ public class PlayerFragment extends Fragment implements PlaybackHandler, Playbac
 
         Uri uri = Uri.parse(CONTENT_STREAM_URL);
         MediaSource source = new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(uri);
-        ((SimpleExoPlayer)playerView.getPlayer()).prepare(source);
-        playerView.getPlayer().setPlayWhenReady(true);
+
+        SimpleExoPlayer player = (SimpleExoPlayer) playerView.getPlayer();
+
+        player.prepare(source);
+        if (resumePosition > 0) player.seekTo(resumePosition);
+        player.setPlayWhenReady(true);
     }
 
     private void setupExoPlayer() {
@@ -266,6 +282,7 @@ public class PlayerFragment extends Fragment implements PlaybackHandler, Playbac
         if (getView() != null) {
             playerView = getView().findViewById(R.id.player_view);
             playerView.setPlayer(player);
+            startProgressTimer();
         }
 
         // Listen for player events so that we can load the true[X] ad manager when the video stream starts
@@ -290,5 +307,51 @@ public class PlayerFragment extends Fragment implements PlaybackHandler, Playbac
         Player player = playerView.getPlayer();
         playerView.setPlayer(null);
         player.release();
+    }
+
+    // Simple way to track the player position to simulate a midroll experience
+    private void startProgressTimer() {
+        if (checkMidroll == null) {
+            checkMidroll = new Runnable() {
+                @Override
+                public void run() {
+                    Long position = getContentPosition();
+                    // Attempt midroll at the 5 minute or later mark
+                    if (position > 5 * 60 * 1000) {
+                        Log.i(CLASSTAG, "Attempting to play midroll ad experience");
+                        displayInteractiveAd(false);
+                        cleanupProgressTimer();
+                    }
+
+                    if (progressHandler != null) {
+                        progressHandler.postDelayed(checkMidroll, 1000);
+                    }
+                }
+            };
+        }
+
+        checkMidroll.run();
+    }
+
+    private void cleanupProgressTimer() {
+        if (checkMidroll != null && progressHandler != null) {
+            progressHandler.removeCallbacks(checkMidroll);
+            progressHandler = null;
+        }
+    }
+
+    private long getContentPosition() {
+        if (playerView == null && playerView.getPlayer() == null) return 0;
+
+        return playerView.getPlayer().getContentPosition();
+    }
+
+    // Normally these comes from some ad server would be made
+    // For simplicity, this is stubbed out
+    private String getVastPrerollUrl() {
+        return "https://qa-get.truex.com/f7e02f55ada3e9d2e7e7f22158ce135f9fba6317/vast/config?dimension_2=0&stream_position=preroll&stream_id=12345";
+    }
+    private String getVastMidrollUrl() {
+        return "https://qa-get.truex.com/f7e02f55ada3e9d2e7e7f22158ce135f9fba6317/vast/config?dimension_2=1&stream_position=midroll&stream_id=12345";
     }
 }

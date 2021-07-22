@@ -27,11 +27,9 @@ public class TruexAdManager {
     private PlaybackHandler playbackHandler;
     private boolean didReceiveCredit;
     private TruexAdRenderer truexAdRenderer;
-    private Context context;
 
     public TruexAdManager(Context context, PlaybackHandler playbackHandler) {
         this.playbackHandler = playbackHandler;
-        this.context = context;
 
         didReceiveCredit = false;
 
@@ -55,28 +53,15 @@ public class TruexAdManager {
     /**
      * Start displaying the true[X] engagement
      * @param viewGroup - the view group in which you would like to display the true[X] engagement
-     */
-    public void startAd(ViewGroup viewGroup) {
-        getAsyncAdvertisingId((adId) -> {
-            startAd(viewGroup, getVastUrl(adId), adId);
-        });
-    }
-
-    /**
-     * Start displaying the true[X] engagement
-     * @param viewGroup - the view group in which you would like to display the true[X] engagement
      * @param vastUrl - the vastUrl that comes from the ad service provider
-     * @param adId - Advertisement ID override.  Should be used if the ad payload is missing information.
      */
-    private void startAd(ViewGroup viewGroup, String vastUrl, String adId) {
+    public void startAd(ViewGroup viewGroup, String vastUrl) {
         TruexAdOptions options = new TruexAdOptions();
-
-        // See java implementation details for more information on this property
-        options.userAdvertisingId = adId;
 
         // After viewing a Truex Ad experience, there will could be a lockout period
         // That prevents the same user from getting another Truex ad for some period of time
-        // To get around this for development, replace the adId with some different/random value
+        // To get around this for development, replace the TruexAdOptions.userAdvertisingId
+        // with some different/random value
         truexAdRenderer.init(vastUrl, options, () -> { truexAdRenderer.start(viewGroup); });
     }
 
@@ -225,33 +210,5 @@ public class TruexAdManager {
         String url = (String)data.get("url");
         playbackHandler.handlePopup(url);
     };
-
-
-    /*
-        Sample integration for how to get the Android advertising id that can be passed to TAR
-        Note that in most cases, this should not be needed because the Vast URL passed into TAR
-        should already contain the advertising id.  Nevertheless, it is available.
-    */
-    private void getAsyncAdvertisingId(NativeAdIdCallback callback) {
-        AsyncTask.execute(() -> {
-            try {
-                AdvertisingIdClient.Info info =  AdvertisingIdClient.getAdvertisingIdInfo(context);
-                if (!info.isLimitAdTrackingEnabled()) {
-                    callback.onComplete(info.getId());
-                } else {
-                    callback.onComplete(null);
-                }
-            } catch (Exception e) {
-                Log.e(CLASSTAG, e.toString());
-                callback.onComplete(null);
-            }
-        });
-    }
-
-    // Note that this flow generally will exist in the player and an ad request would be made
-    // For simplicity, this is stubbed out
-    private String getVastUrl(String adUrl) {
-        return "https://qa-get.truex.com/f7e02f55ada3e9d2e7e7f22158ce135f9fba6317/vast/config?dimension_2=1&stream_position=midroll&network_user_id=" + adUrl;
-    }
 }
 
