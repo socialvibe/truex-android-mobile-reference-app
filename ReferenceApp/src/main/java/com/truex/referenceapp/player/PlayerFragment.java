@@ -334,8 +334,8 @@ public class PlayerFragment extends Fragment implements PlaybackHandler, Playbac
     }
 
     private void cleanupProgressTimer() {
-        if (checkMidroll != null && progressHandler != null) {
-            progressHandler.removeCallbacks(checkMidroll);
+        if (progressHandler != null) {
+            if (checkMidroll != null) progressHandler.removeCallbacks(checkMidroll);
             progressHandler = null;
         }
     }
