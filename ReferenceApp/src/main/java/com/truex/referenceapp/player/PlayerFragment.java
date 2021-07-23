@@ -3,6 +3,7 @@ package com.truex.referenceapp.player;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,14 +26,23 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 import com.truex.referenceapp.R;
+import com.truex.referenceapp.ads.AdBreak;
 import com.truex.referenceapp.ads.TruexAdManager;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PlayerFragment extends Fragment implements PlaybackHandler, PlaybackStateListener {
     private static final String CLASSTAG = "PlayerFragment";
     private static final String CONTENT_STREAM_URL = "https://ctv.truex.com/assets/reference-app-stream-no-ads-720p.mp4";
-    private static final String AD_URL_ONE = "https://ctv.truex.com/assets/coffee-720p.mp4";
-    private static final String AD_URL_TWO = "https://ctv.truex.com/assets/airline-720p.mp4";
-    private static final String AD_URL_THREE = "https://ctv.truex.com/assets/petcare-720p.mp4";
 
     // This player view is used to display a fake stream that mimics actual video content
     private PlayerView playerView;
@@ -48,6 +58,14 @@ public class PlayerFragment extends Fragment implements PlaybackHandler, Playbac
     // We need to identify whether or not the user is viewing ads or the content stream
     private DisplayMode displayMode;
 
+    private List<AdBreak> adBreaks;
+    private AdBreak currentAdBreak;
+
+    // Timer/midroll properties
+    private Handler progressHandler = new Handler();
+    private Runnable checkForAds = null;
+    private long resumePosition = 0;
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -59,6 +77,10 @@ public class PlayerFragment extends Fragment implements PlaybackHandler, Playbac
         Log.d(CLASSTAG, "onViewCreated");
 
         super.onViewCreated(view, savedInstanceState);
+
+        // Simulates the parsed result of making a service call to some ad provider and
+        // getting useful information
+        adBreaks = getAdPayload(R.raw.adbreaks_stub);
 
         // Set-up the video content player
         setupExoPlayer();
@@ -112,7 +134,7 @@ public class PlayerFragment extends Fragment implements PlaybackHandler, Playbac
             truexAdManager.onDestroy();
         }
 
-        // Release the video player
+        cleanupProgressMonitor();
         closeStream();
     }
 
@@ -121,7 +143,8 @@ public class PlayerFragment extends Fragment implements PlaybackHandler, Playbac
      * Display the true[X] engagement
      */
     public void onPlayerDidStart() {
-        displayInteractiveAd();
+        playCurrentAds();
+        startProgressMonitor();
     }
 
     /**
@@ -144,6 +167,14 @@ public class PlayerFragment extends Fragment implements PlaybackHandler, Playbac
     public void onPlayerDidComplete() {
         if (displayMode == DisplayMode.LINEAR_ADS) {
             displayContentStream();
+            clearCurrentAdBreak();
+        }
+    }
+
+    private void clearCurrentAdBreak() {
+        if (this.currentAdBreak != null) {
+            this.currentAdBreak.viewed = true;
+            this.currentAdBreak = null;
         }
     }
 
@@ -158,6 +189,7 @@ public class PlayerFragment extends Fragment implements PlaybackHandler, Playbac
         }
         playerView.setVisibility(View.VISIBLE);
 
+        clearCurrentAdBreak();
         if (!this.isPaused) {
             playerView.getPlayer().setPlayWhenReady(true);
         }
@@ -203,19 +235,25 @@ public class PlayerFragment extends Fragment implements PlaybackHandler, Playbac
 
         MediaSource[] ads = new MediaSource[3];
 
-        String[] adUrls = {
-                AD_URL_ONE, AD_URL_TWO, AD_URL_THREE
-        };
+        List<String> adUrls = this.currentAdBreak.adUrls;
+        List<String> playableAds = new ArrayList<>();
+        for (int i = 0; i < adUrls.size(); i++) {
+            String url = adUrls.get(i);
+            if (!isTruexAdUrl(url)) {
+                playableAds.add(url);
+            }
+        }
 
-        for(int i = 0; i < ads.length; i++) {
-            Uri uri = Uri.parse(adUrls[i]);
+        for(int i = 0; i < playableAds.size(); i++) {
+            Uri uri = Uri.parse(playableAds.get(i));
             MediaSource source = new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(uri);
             ads[i] = source;
         }
 
         MediaSource adPod = new ConcatenatingMediaSource(ads);
-        ((SimpleExoPlayer)playerView.getPlayer()).prepare(adPod);
-        playerView.getPlayer().setPlayWhenReady(true);
+        SimpleExoPlayer player = getPlayer();
+        player.prepare(adPod);
+        player.setPlayWhenReady(true);
         playerView.setVisibility(View.VISIBLE);
     }
 
@@ -227,7 +265,26 @@ public class PlayerFragment extends Fragment implements PlaybackHandler, Playbac
         startActivity(browserIntent);
     }
 
-    private void displayInteractiveAd() {
+    private void playCurrentAds() {
+        if (adBreaks == null || adBreaks.size() == 0) return;
+
+        long position = getContentPosition();
+        for (int i = 0; i < adBreaks.size(); i++) {
+            AdBreak adBreak = adBreaks.get(i);
+            if (position >= adBreak.timeOffsetMs && !adBreak.viewed) {
+                this.currentAdBreak = adBreak;
+                String firstAd = adBreak.getFirstAd();
+                if (isTruexAdUrl(firstAd)) {
+                    displayInteractiveAd(firstAd);
+                } else {
+                    displayLinearAds();
+                }
+                return;
+            }
+        }
+    }
+
+    private void displayInteractiveAd(String vastUrl) {
         Log.d(CLASSTAG, "displayInteractiveAds");
         if (playerView.getPlayer() == null) {
             return;
@@ -235,13 +292,15 @@ public class PlayerFragment extends Fragment implements PlaybackHandler, Playbac
 
         // Pause the stream and display a true[X] engagement
         pauseStream();
+        Long position = getContentPosition();
+        if (position > 0) resumePosition = position;
 
         displayMode = DisplayMode.INTERACTIVE_AD;
 
         // Start the true[X] engagement
         ViewGroup viewGroup = (ViewGroup) getView();
         truexAdManager = new TruexAdManager(getContext(), this);
-        truexAdManager.startAd(viewGroup);
+        truexAdManager.startAd(viewGroup, vastUrl);
     }
 
     private void displayContentStream() {
@@ -254,8 +313,11 @@ public class PlayerFragment extends Fragment implements PlaybackHandler, Playbac
 
         Uri uri = Uri.parse(CONTENT_STREAM_URL);
         MediaSource source = new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(uri);
-        ((SimpleExoPlayer)playerView.getPlayer()).prepare(source);
-        playerView.getPlayer().setPlayWhenReady(true);
+
+        SimpleExoPlayer player = getPlayer();
+        player.prepare(source);
+        if (resumePosition > 0) player.seekTo(resumePosition);
+        player.setPlayWhenReady(true);
     }
 
     private void setupExoPlayer() {
@@ -290,5 +352,89 @@ public class PlayerFragment extends Fragment implements PlaybackHandler, Playbac
         Player player = playerView.getPlayer();
         playerView.setPlayer(null);
         player.release();
+    }
+
+    // Simple way to track the player position to simulate a midroll experience
+    private void startProgressMonitor() {
+        if (checkForAds == null) {
+            checkForAds = new Runnable() {
+                @Override
+                public void run() {
+                    if (PlayerFragment.this.currentAdBreak == null && getContentPosition() > 0) playCurrentAds(); // Play any ads if available
+                    if (progressHandler != null) {
+                        progressHandler.postDelayed(checkForAds, 1000);
+                    }
+                }
+            };
+        }
+
+        checkForAds.run();
+    }
+
+    private void cleanupProgressMonitor() {
+        if (progressHandler != null) {
+            if (checkForAds != null) progressHandler.removeCallbacks(checkForAds);
+            progressHandler = null;
+        }
+    }
+
+    private SimpleExoPlayer getPlayer() {
+        return playerView != null ? (SimpleExoPlayer) playerView.getPlayer() : null;
+    }
+
+    private long getContentPosition() {
+        SimpleExoPlayer player = getPlayer();
+        return player != null ? player.getContentPosition() : 0;
+    }
+
+    private List<AdBreak> getAdPayload(Integer resourceId) {
+        String rawFile = getRawFileContents(resourceId);
+        try {
+            JSONObject rawJson = new JSONObject(rawFile);
+            JSONArray adBreaks = rawJson.getJSONArray("adBreaks");
+            List<AdBreak> result = new ArrayList<>();
+
+            for (int i = 0; i < adBreaks.length(); i++) {
+                AdBreak adBreak = new AdBreak();
+                adBreak.parseJson(adBreaks.getJSONObject(i));
+                result.add(adBreak);
+            }
+
+            return result;
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private String getRawFileContents(int resourceId) {
+        InputStream vastContentStream = getContext().getResources().openRawResource(resourceId);
+
+        StringBuilder stringBuilder = new StringBuilder();
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new InputStreamReader(vastContentStream));
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                stringBuilder.append(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        return stringBuilder.toString();
+    }
+
+    private Boolean isTruexAdUrl(String url) {
+        return url.contains("get.truex.com");
     }
 }
