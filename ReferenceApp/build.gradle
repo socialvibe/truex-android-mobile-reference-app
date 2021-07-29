@@ -38,13 +38,10 @@ repositories {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'com.google.android.exoplayer:exoplayer:2.10.5'
     implementation 'com.google.android.gms:play-services-ads:19.3.0'
     implementation 'org.apache.commons:commons-text:1.9'
     // True[x] Ad Renderer (TAR) Dependency
-    // Note: to refer to a local version of the TAR project, comment out the com.truex dependency
-    // and uncomment the project one below.
-//    implementation 'com.truex:TruexAdRenderer-AndroidMobile:1.0.0' // TODO: Figure out release version'
-    implementation project(':TruexAdRenderer')
+    implementation 'com.truex:TruexAdRenderer:2.0.2'
 }
