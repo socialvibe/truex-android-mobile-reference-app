@@ -1,4 +1,1 @@
 include ':ReferenceApp'
-// uncomment to reference local version of Android TAR
-include ':TruexAdRenderer'
-project(':TruexAdRenderer').projectDir = new File(settingsDir, '../TruexAdRenderer-AndroidMobile/TruexAdRenderer')
