@@ -188,6 +188,7 @@ public class PlayerFragment extends Fragment implements PlaybackHandler, Playbac
             return;
         }
         playerView.setVisibility(View.VISIBLE);
+        displayMode = DisplayMode.CONTENT_STREAM;
 
         clearCurrentAdBreak();
         if (!this.isPaused) {
