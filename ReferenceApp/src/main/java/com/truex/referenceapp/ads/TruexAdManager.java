@@ -73,7 +73,6 @@ public class TruexAdManager {
         truexAdRenderer.resume();
     }
 
-
     /**
      * Inform the true[X] ad renderer that the application has paused
      */
@@ -99,6 +98,7 @@ public class TruexAdManager {
     }
 
     /**
+     * [4] - Integration Doc/Notes
      * This method should be called once the true[X] ad manager is done
      */
     private void onCompletion() {
@@ -161,6 +161,7 @@ public class TruexAdManager {
     };
 
     /*
+       [3] - Integration Doc/Notes
        Note: This event is triggered when the viewer has earned their true[ATTENTION] credit. We
        could skip over the linear ads here, so that when the ad is complete, all we would need
        to do is resume the stream.
