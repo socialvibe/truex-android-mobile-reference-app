@@ -1,11 +1,8 @@
 package com.truex.referenceapp.ads;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.util.Log;
 import android.view.ViewGroup;
-
-import com.google.android.gms.ads.identifier.AdvertisingIdClient;
 
 import com.truex.adrenderer.IEventEmitter.IEventHandler;
 import com.truex.adrenderer.TruexAdEvent;
@@ -14,7 +11,6 @@ import com.truex.adrenderer.TruexAdRenderer;
 import com.truex.referenceapp.player.PlaybackHandler;
 
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * This class holds a reference to the true[X] ad renderer and handles all of the event handling
@@ -73,7 +69,6 @@ public class TruexAdManager {
         truexAdRenderer.resume();
     }
 
-
     /**
      * Inform the true[X] ad renderer that the application has paused
      */
@@ -99,6 +94,7 @@ public class TruexAdManager {
     }
 
     /**
+     * [4] - Integration Doc/Notes
      * This method should be called once the true[X] ad manager is done
      */
     private void onCompletion() {
@@ -161,6 +157,7 @@ public class TruexAdManager {
     };
 
     /*
+       [3] - Integration Doc/Notes
        Note: This event is triggered when the viewer has earned their true[ATTENTION] credit. We
        could skip over the linear ads here, so that when the ad is complete, all we would need
        to do is resume the stream.

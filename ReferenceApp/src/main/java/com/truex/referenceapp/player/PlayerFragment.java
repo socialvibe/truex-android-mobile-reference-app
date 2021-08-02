@@ -266,6 +266,7 @@ public class PlayerFragment extends Fragment implements PlaybackHandler, Playbac
         startActivity(browserIntent);
     }
 
+    // [1] - Integration Doc/Notes
     private void playCurrentAds() {
         if (adBreaks == null || adBreaks.size() == 0) return;
 
@@ -285,6 +286,7 @@ public class PlayerFragment extends Fragment implements PlaybackHandler, Playbac
         }
     }
 
+    // [2] - Integration Doc/Notes
     private void displayInteractiveAd(String vastUrl) {
         Log.d(CLASSTAG, "displayInteractiveAds");
         if (playerView.getPlayer() == null) {
