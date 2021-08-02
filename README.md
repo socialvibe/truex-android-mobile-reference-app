@@ -1,8 +1,8 @@
 # true[X] Reference App
 
-## Reference app for Android Mobile TAR (TruexAdRenderer) integration
+## Reference app for Android Mobile TruexAdRenderer integration
 
-This is an Android Mobile application exposing direct calls into `TruexAdRenderer` instances, enabling functional testing as well as prototyping. The application is set up with a simple activity and the calls in the `MainActivity` should be self-explanatory.  This samples an integration where the ads are handled on the client side, but it can be extended to other ad solutions such as server stitched ads.
+This is an Android Mobile application exposing direct calls into `TruexAdRenderer` (also referenced as TAR in the walkthrough and code) instances, enabling functional testing as well as prototyping. The application is set up with a simple activity and the calls in the `MainActivity` should be self-explanatory.  This samples an integration where the ads are handled on the client side, but it can be extended to other ad solutions such as server stitched ads.
 
 
 ### Access the true[X] Ad Renderer Library
@@ -23,7 +23,7 @@ Add the TAR dependency to your project
 The following steps are a guideline for the TAR integration.  This assumes you have setup the TAR dependency above to access the renderer.  The starting/key points referenced in each step can be searched in the code for reference.  EG.  Searching for [2], will direct you to the engagement start.
 
 ### [1] - Look for true[X] companions for a given ad (PlayerFragment::playCurrentAds)
-For simplicity, this sample app uses stubbed and parsed ad data.  But this can be replaced with an ad call and then parsing the ad payload.  The important part here is determining if a given ad, which should be the first ad in a pod, is a true[X] ad.  This can vary depending on how the ads are returned by the server.  But some variations include checking if part of the payload contains a truex string, as seen in `isTruexAdUrl()`.
+For simplicity, this sample app uses stubbed and parsed ad data (`adbreaks_stub.json`).  But this can be replaced with an ad call and then parsing the ad payload.  The important part here is determining if a given ad, which should be the first ad in a pod, is a true[X] ad.  This can vary depending on how the ads are returned by the server.  But some variations include checking if part of the payload contains a truex string, as seen in `isTruexAdUrl()`.
 
 ### [2] - Prepare to enter the engagement (PlayerFragment::displayInteractiveAd, TruexAdManager)
 Once as have a valid true[X] ad, first we pause playback (displayInteractiveAd::pauseStream).  Then we initialize TAR by means of the `TruexAdManager`, via `TruexAdManager.startAd()`.  Note the `PlaybackHandler` passed in the constructor, which will be responsible for interfacing with the TAR events later on.  The key line that starts the Truex Ad Experience is:

@@ -1,11 +1,8 @@
 package com.truex.referenceapp.ads;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.util.Log;
 import android.view.ViewGroup;
-
-import com.google.android.gms.ads.identifier.AdvertisingIdClient;
 
 import com.truex.adrenderer.IEventEmitter.IEventHandler;
 import com.truex.adrenderer.TruexAdEvent;
@@ -14,7 +11,6 @@ import com.truex.adrenderer.TruexAdRenderer;
 import com.truex.referenceapp.player.PlaybackHandler;
 
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * This class holds a reference to the true[X] ad renderer and handles all of the event handling
