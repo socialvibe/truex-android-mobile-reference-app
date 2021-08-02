@@ -31,7 +31,7 @@ Once as have a valid true[X] ad, first we pause playback (displayInteractiveAd::
 This tells the renderer to initialize and verify it has a valid ad payload, and it fires a callback when it is ready to start.  The host app is responsible for when to start the ad experience, but able to do it immediately, per the example above.  After the renderer has started, it will communicate various events.
 
 ### [3] - Ad Events - AD_FREE_POD (TruexAdManager::adFree, TruexAdEvent)
-There are a handful of key ad events that TAR will message to the host app.  The first key event is AD_FREE_POD.  Once a user fulfills the requirements to earn true[ATTENTION], this event is fired.  At this point the user has earned credit and is kept track of.  It is important to note that AD_FREE_POD can be acquired before the user exits the engagement, and the host app should wait for a terminating event to proceed.
+There are a handful of key ad events that TAR will message to the host app.  The first key event is AD_FREE_POD.  Once a user fulfills the requirements to earn credit for the ad, also called true[ATTENTION], this event is fired, and a flag keeps track of this in the code.  It is important to note that AD_FREE_POD can be acquired before the user exits the engagement, and the host app should wait for a terminating event to proceed.
 
 ### [4] - Ad Events - Terminating Events (TruexAdManager::onCompletion, TruexAdEvent)
 There are three ways the renderer can finish:
@@ -41,6 +41,9 @@ There are three ways the renderer can finish:
 3. The viewer has completed the engagement. (`AD_COMPLETED`)
 
 In `onCompletion`, note that if the user has gained credit from earlier, we want to skip all the other ad returned in the pod and resume the stream.  Otherwise we need to play the other ads in the pod.  In all three of these cases, the renderer will have removed itself from view.
+
+### [5] - Ad Events - Other (TruexAdManager, TruexAdEvent)
+See the code for other ad events that are fired.  Some events are for any custom purposes if needed, otherwise there is nothing the host app is required to do (eg. AD_STARTED).  The POPUP_WEBSITE event is for handling any user interactions that would prompt a pop up.  It is important to pause/resume the ad renderer based off the user actions to preserve proper states when switching to another app, as shown in the code.
 
 ## Setup
 
