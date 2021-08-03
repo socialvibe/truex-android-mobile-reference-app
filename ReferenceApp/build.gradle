@@ -43,5 +43,5 @@ dependencies {
     implementation 'com.google.android.gms:play-services-ads:19.3.0'
     implementation 'org.apache.commons:commons-text:1.9'
     // True[x] Ad Renderer (TAR) Dependency
-    implementation 'com.truex:TruexAdRenderer:2.0.2'
+    implementation 'com.truex:TruexAdRenderer:2.0.+'
 }
