@@ -7,7 +7,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 30
         versionCode 1
-        versionName "2.0.2"
+        versionName "2.0.3"
     }
     buildTypes {
         release {
@@ -40,8 +40,9 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'com.google.android.exoplayer:exoplayer:2.10.5'
-    implementation 'com.google.android.gms:play-services-ads:19.3.0'
     implementation 'org.apache.commons:commons-text:1.9'
-    // True[x] Ad Renderer (TAR) Dependency
-    implementation 'com.truex:TruexAdRenderer:2.0.+'
+
+    // true[X] Ad Renderer (TAR) Dependency
+    // We recommend using a specific version, but using the latest patch release for any critical hotfixes
+    implementation 'com.truex:TruexAdRenderer-Mobile:2.0.+'
 }
