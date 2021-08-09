@@ -17,7 +17,10 @@ repositories {
 ```
 
 Add the TAR dependency to your project
-`implementation 'com.truex:TruexAdRenderer:2.0.2'`
+```
+    // We recommend using a specific version, but using the latest patch release for any critical hotfixes
+    implementation 'com.truex:TruexAdRenderer-Mobile:2.0.+
+```
 
 ## Steps
 The following steps are a guideline for the TAR integration.  This assumes you have setup the TAR dependency above to access the renderer.  The starting/key points referenced in each step can be searched in the code for reference.  EG.  Searching for [2], will direct you to the engagement start.
