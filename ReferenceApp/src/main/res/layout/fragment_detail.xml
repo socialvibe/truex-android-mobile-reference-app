@@ -1,13 +1,78 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical" >
+    android:background="@drawable/background"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="160dp"
+        android:layout_height="50dp"
+        app:srcCompat="@drawable/true_vision_logo_fhd" />
+
+    <TextView
+        android:id="@+id/appTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="The true[X] Employee Experience"
+        android:textColor="@color/white"
+        android:textSize="30sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/appDetail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:text="Our mission is to provide the best advertising experience for consumers, the best monetization for premium publishers, and the best return for brand advertisers. Learn about our team and employee experience."
+        android:textSize="18sp" />
 
     <Button
         android:id="@+id/playbackButton"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:background="@color/white"
         android:text="Play Video"
-        android:onClick="onButtonClicked"/>
+        android:textColor="@color/gray"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/space"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/unlockButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:text="Unlock (Solo)"
+        android:textColor="@color/gray"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/appDetail2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="20dp"
+        android:text="By default in this app, the 2 ad breaks are:"
+        android:textSize="18sp" />
+
+    <TextView
+        android:id="@+id/appDetail3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="- preroll at 0s"
+        android:textSize="18sp" />
+
+    <TextView
+        android:id="@+id/appDetail4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="- midroll at 577s (9m37s)"
+        android:textSize="18sp" />
 
 </LinearLayout>
