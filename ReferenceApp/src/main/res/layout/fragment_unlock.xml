@@ -34,7 +34,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingTop="10dp"
-            android:text='This page is meant to showcase the one stage "solo" tag. On page appear, we will try to download an ad from ad server. When click unlock with true[X] button above, the true[X] Engagement will start. After user finish the ad, the switch will flip to the on position. This state is reset when clicking back and dismissing this page.' />
+            android:text='This page is meant to showcase the one stage "solo" tag. On page appear, we will try to download an ad from ad server. When click unlock with true[X] button above, the true[X] Engagement ad will start. After user finish the true[X] Engagement ad, the switch will flip to the on position. This state is reset when clicking back and dismissing this page.' />
     </LinearLayout>
 
 </FrameLayout>
