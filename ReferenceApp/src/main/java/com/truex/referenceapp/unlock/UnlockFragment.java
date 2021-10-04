@@ -85,13 +85,17 @@ public class UnlockFragment extends Fragment implements View.OnClickListener {
         // Here we use a fake ad manager, which parse the VAST XML directly into a Map.
         try {
             // Just checking the 1st ad here to simplify the flow in this example
-            Map currentAd = (Map)((ArrayList)((Map)((ArrayList)vastMap.get("Ad")).get(0)).get("InLine")).get(0);
-            String adSystem = (String)((Map)((ArrayList)currentAd.get("AdSystem")).get(0)).get("CDATA");
+            // currentAd = vastMap["Ad"][0]["InLine"][0];
+            Map currentAd = get(get(vastMap, "Ad", 0), "InLine", 0);
+            // adSystem = currentAd["AdSystem"][0]["CDATA"];
+            String adSystem = (String)get(currentAd, "AdSystem", 0).get("CDATA");
             Boolean isTruexAd = (adSystem.startsWith("trueX"));
 
             if (isTruexAd) {
-                Map creative = (Map)((ArrayList)((Map)((ArrayList)currentAd.get("Creatives")).get(0)).get("Creative")).get(0);
-                String adParametersString = (String)((Map)((ArrayList)((Map)((ArrayList)creative.get("Linear")).get(0)).get("AdParameters")).get(0)).get("CDATA");
+                // creative = currentAd["Creatives"][0]["Creative"][0];
+                Map creative = get(get(currentAd, "Creatives", 0), "Creative", 0);
+                // adParametersString = creative["Linear"][0]["AdParameters"][0]["CDATA"];
+                String adParametersString = (String)get(get(creative, "Linear", 0), "AdParameters", 0).get("CDATA");
                 JSONObject adParameters = new JSONObject(adParametersString);
                 startTruexAdRenderer(adParameters);
             } else {
@@ -373,6 +377,16 @@ public class UnlockFragment extends Fragment implements View.OnClickListener {
         };
         Thread asyncThread = new Thread(runnable);
         asyncThread.start();
+    }
+
+    private Map get(Map map, String key, int index) {
+        if (map != null) {
+            ArrayList list = (ArrayList)map.get(key);
+            if (list != null) {
+                return (Map) list.get(index);
+            }
+        }
+        return null;
     }
 
     private void toast(String message) {
