@@ -288,16 +288,19 @@ public class UnlockFragment extends Fragment implements View.OnClickListener {
     // MARK: - Helper Functions / Fake Ad Framework
     // These are just helper code to make this sample work. Following are not part of the intergration
     private void fetchAd(final String rawUrlString) {
+        String urlString = rawUrlString;
+        // replacing user_id with random UUID here for testing, please use the real user ID from the system.
+        // Usually this will be filled out by your ad server, or you will fill in your internal ID
+        for (String s : Arrays.asList("[stream_id]", "[user_id]")) {
+            urlString = urlString.replace(s, UUID.randomUUID().toString());
+        }
+        fetchXmlToVastMap(urlString);
+    }
+
+    private void fetchXmlToVastMap(final String urlString) {
         Runnable runnable = new Runnable() {
             public void run() {
                 try {
-                    String urlString = rawUrlString;
-                    // replacing user_id with random UUID here for testing, please use the real user ID from the system.
-                    // Usually this will be filled out by your ad server, or you will fill in your internal ID
-                    for (String s : Arrays.asList("[stream_id]", "[user_id]")) {
-                        urlString = urlString.replace(s, UUID.randomUUID().toString());
-                    }
-
                     XmlPullParserFactory parserFactory = XmlPullParserFactory.newInstance();
                     XmlPullParser parser = parserFactory.newPullParser();
                     InputStream is = new URL(urlString).openStream();
