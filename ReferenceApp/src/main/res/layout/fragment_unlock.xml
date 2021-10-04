@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/unlockScreenLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".unlock.UnlockFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <Switch
+            android:id="@+id/lockingSwitch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:enabled="false"
+            android:minHeight="48dp"
+            android:showText="false"
+            android:text="Locked" />
+
+        <Button
+            android:id="@+id/unlockWithTruex"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Unlock With true[X]" />
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="10dp"
+            android:text='This page is meant to showcase the one stage "solo" tag. On page appear, we will try to download an ad from ad server. When click unlock with true[X] button above, the true[X] Engagement ad will start. After user finish the true[X] Engagement ad, the switch will flip to the on position. This state is reset when clicking back and dismissing this page.' />
+    </LinearLayout>
+
+</FrameLayout>

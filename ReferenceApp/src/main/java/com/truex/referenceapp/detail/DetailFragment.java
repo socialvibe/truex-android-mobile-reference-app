@@ -11,6 +11,7 @@ import androidx.fragment.app.FragmentActivity;
 
 import com.truex.referenceapp.R;
 import com.truex.referenceapp.player.PlayerFragment;
+import com.truex.referenceapp.unlock.UnlockFragment;
 
 public class DetailFragment extends Fragment implements View.OnClickListener {
     private static final String CLASSTAG = DetailFragment.class.getSimpleName();
@@ -19,6 +20,8 @@ public class DetailFragment extends Fragment implements View.OnClickListener {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_detail, container, false);
         Button button = view.findViewById(R.id.playbackButton);
+        button.setOnClickListener(this);
+        button = view.findViewById(R.id.unlockButton);
         button.setOnClickListener(this);
 
         return view;
@@ -30,14 +33,25 @@ public class DetailFragment extends Fragment implements View.OnClickListener {
             case R.id.playbackButton:
                 loadPlayerFragment();
                 break;
+            case R.id.unlockButton:
+                loadUnlockFragment();
+                break;
         }
     }
 
-    private void loadPlayerFragment() {
+    private void loadFragment(Fragment fragment) {
         FragmentActivity activity = getActivity();
         activity.getSupportFragmentManager().beginTransaction()
-                .replace(R.id.activity_main, new PlayerFragment())
+                .replace(R.id.activity_main, fragment)
                 .addToBackStack(null)
                 .commit();
+    }
+
+    private void loadPlayerFragment() {
+        loadFragment(new PlayerFragment());
+    }
+
+    private void loadUnlockFragment() {
+        loadFragment(new UnlockFragment());
     }
 }
