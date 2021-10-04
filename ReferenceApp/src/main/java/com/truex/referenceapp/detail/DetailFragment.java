@@ -39,19 +39,19 @@ public class DetailFragment extends Fragment implements View.OnClickListener {
         }
     }
 
-    private void loadPlayerFragment() {
+    private void loadFragment(Fragment fragment) {
         FragmentActivity activity = getActivity();
         activity.getSupportFragmentManager().beginTransaction()
-                .replace(R.id.activity_main, new PlayerFragment())
+                .replace(R.id.activity_main, fragment)
                 .addToBackStack(null)
                 .commit();
     }
 
+    private void loadPlayerFragment() {
+        loadFragment(new PlayerFragment());
+    }
+
     private void loadUnlockFragment() {
-        FragmentActivity activity = getActivity();
-        activity.getSupportFragmentManager().beginTransaction()
-                .replace(R.id.activity_main, new UnlockFragment())
-                .addToBackStack(null)
-                .commit();
+        loadFragment(new UnlockFragment());
     }
 }
