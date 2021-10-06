@@ -110,6 +110,7 @@ public class UnlockFragment extends Fragment implements View.OnClickListener {
         Switch lockingSwitch = getView().findViewById(R.id.lockingSwitch);
         lockingSwitch.setChecked(true);
         lockingSwitch.setText("Unlocked");
+        lockingSwitch.setTextColor(0xFF00FF00);
     }
 
     // MARK: - TrueX Ad Renderer
