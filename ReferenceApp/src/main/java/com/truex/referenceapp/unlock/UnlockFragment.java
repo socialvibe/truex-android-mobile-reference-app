@@ -42,7 +42,7 @@ public class UnlockFragment extends Fragment implements View.OnClickListener {
     private Context context;
     private Map vastMap = null;
     private Boolean vastReady = false;
-    private final String AD_SERVER = "https://qa-get.truex.com/5075c46a8e5a48a206318d4ecfb5cc70101e0bcf/vast/solo?dimension_2=1&stream_position=midroll&stream_id=[stream_id]&network_user_id=[user_id]";
+    private final String AD_SERVER = "https://get.truex.com/d6db271334a18f547f83182fcf3f6947915265c2/vast/solo?dimension_2=1&stream_position=midroll&stream_id=[stream_id]&network_user_id=[user_id]";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
