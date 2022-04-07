@@ -11,6 +11,7 @@ if [[ -z "$BUILD_TYPE" ]]; then
 fi
 
 FILEPATH="s3://android.truex.com/mobile/$BUILD_TYPE/builds/referenceapp"
+# Some potential issues here if FILEPATH contains over 1000 files, or grep APK_FILENAME is a substring
 if [ "$(aws s3 ls $FILEPATH --recursive | grep -c $APK_FILENAME)" != "0" ]; then
   echo "Error: $APK_FILENAME already exists on AWS: $FILEPATH.  Update App Version.  Terminating Build/Deployment..."
   exit 1
