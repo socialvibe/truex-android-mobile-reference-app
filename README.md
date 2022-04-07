@@ -58,6 +58,7 @@ See the code for other ad events that are fired.  Some events are for any custom
 
 * Clone the `master` branch of the `ReferenceApp` repository
     * `git clone https://github.com/socialvibe/truex-android-mobile-reference-app.git`
+    * `develop` branch should not be used as it may not be production ready
 
 * Open ReferenceApp with Android Studio
     * Open Android Studio
