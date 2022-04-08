@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 
 def APP_VERSION = "2.1.0" // The version must be updated every build. Git+Travis will also report if there will be an issue on a pull request
-def APK_FILENAME = "Truex-Android-ReferenceApp-" + APP_VERSION;
+def APK_FILENAME = "Truex-Android-ReferenceApp-" + APP_VERSION + ".apk";
 
 android {
     compileSdkVersion 30
