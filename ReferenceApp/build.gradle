@@ -1,14 +1,14 @@
 apply plugin: 'com.android.application'
 
-def APP_VERSION = "2.1.0" // The version must be updated every build. Git+Travis will also report if there will be an issue on a pull request
+def APP_VERSION = "2.1.2" // The version must be updated every build. Git+Travis will also report if there will be an issue on a pull request
 def APK_FILENAME = "Truex-Android-ReferenceApp-" + APP_VERSION + ".apk";
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 31
     defaultConfig {
         applicationId "com.truex.referenceapp"
         minSdkVersion 21
-        targetSdkVersion 30
+        targetSdkVersion 31
         versionCode 1
         versionName APP_VERSION
     }
@@ -54,7 +54,7 @@ dependencies {
 
     // true[X] Ad Renderer (TAR) Dependency
     // We recommend using a specific version, but using the latest patch release for any critical hotfixes
-    implementation 'com.truex:TruexAdRenderer-Mobile:2.0.+'
+    implementation 'com.truex:TruexAdRenderer-Mobile:2.1.3'
 }
 
 task("getApkFilename") {
