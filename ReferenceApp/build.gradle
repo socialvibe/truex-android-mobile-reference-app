@@ -4,6 +4,12 @@ def APP_VERSION = "2.1.1" // The version must be updated every build. Git+Travis
 def TAR_VERSION = "2.1.3"
 def APK_FILENAME = "Truex-Android-ReferenceApp-" + APP_VERSION + ".apk";
 
+buildscript {
+    ext {
+        buildType = findProperty("build_type") ?: "qa"
+    }
+}
+
 android {
     compileSdkVersion 31
     defaultConfig {
@@ -39,11 +45,16 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    namespace 'com.truex.referenceapp'
 }
 
 repositories {
-    maven {
-        url "https://s3.amazonaws.com/android.truex.com/maven"
+    if (buildType == "qa" || buildType == "prod") {
+        maven {
+            url "https://s3.amazonaws.com/android.truex.com/mobile/" + buildType + "/maven"
+        }
+    } else {
+        throw new GradleException('Invalid build type ' + buildType + '.  Expecting qa or prod')
     }
 }
 
