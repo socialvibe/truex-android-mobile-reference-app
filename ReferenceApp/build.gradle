@@ -60,7 +60,7 @@ repositories {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.exoplayer:exoplayer:2.10.5'
     implementation 'org.apache.commons:commons-text:1.9'
 
