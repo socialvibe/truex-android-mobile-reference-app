@@ -1,7 +1,9 @@
 package com.truex.referenceapp.unlock;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -52,11 +54,23 @@ public class UnlockFragment extends Fragment implements View.OnClickListener {
         Button button = view.findViewById(R.id.unlockWithTruex);
         button.setOnClickListener(this);
 
+        // We are presenting our ads in landscape.
+        Activity activity = getActivity();
+        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+
         // Helper function to fetch ad to vastMap
         // This should be pointing to your ad server, where a true[X] ad is booked.
         fetchAd(AD_SERVER);
 
         return view;
+    }
+
+    @Override
+    public void onDetach() {
+        // Restore portrait orientation for normal usage.
+        Activity activity = getActivity();
+        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
+        super.onDetach();
     }
 
     @Override

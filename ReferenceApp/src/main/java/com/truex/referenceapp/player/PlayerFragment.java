@@ -1,6 +1,8 @@
 package com.truex.referenceapp.player;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -66,7 +68,19 @@ public class PlayerFragment extends Fragment implements PlaybackHandler, Playbac
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        // Force playback in landscape.
+        Activity activity = getActivity();
+        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+
         return inflater.inflate(R.layout.fragment_player, container, false);
+    }
+
+    @Override
+    public void onDetach() {
+        // Restore portrait orientation for normal usage.
+        Activity activity = getActivity();
+        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
+        super.onDetach();
     }
 
     @Override
