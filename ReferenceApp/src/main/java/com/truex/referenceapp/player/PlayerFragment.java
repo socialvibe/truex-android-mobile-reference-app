@@ -354,6 +354,7 @@ public class PlayerFragment extends Fragment implements PlaybackHandler, Playbac
         Player player = playerView.getPlayer();
         if (player == null) return;
         playerView.setPlayer(null);
+        player.release();
     }
 
     // Simple way to track the player position to simulate a midroll experience
