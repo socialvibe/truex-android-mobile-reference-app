@@ -1,11 +1,11 @@
 package com.truex.referenceapp.unlock;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Bundle;
-import androidx.fragment.app.Fragment;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,7 +14,8 @@ import android.widget.Button;
 import android.widget.Switch;
 import android.widget.Toast;
 
-import com.truex.adrenderer.IEventEmitter;
+import androidx.fragment.app.Fragment;
+
 import com.truex.adrenderer.TruexAdEvent;
 import com.truex.adrenderer.TruexAdOptions;
 import com.truex.adrenderer.TruexAdRenderer;
@@ -42,7 +43,7 @@ public class UnlockFragment extends Fragment implements View.OnClickListener {
     private Context context;
     private Map vastMap = null;
     private Boolean vastReady = false;
-    private final String AD_SERVER = "https://get.truex.com/d6db271334a18f547f83182fcf3f6947915265c2/vast/solo?dimension_2=1&stream_position=midroll&stream_id=[stream_id]&network_user_id=[user_id]";
+    private final String AD_SERVER = "https://get.truex.com/22c36d3926383ba62994809a60b4649e3ced1070/vast/solo?dimension_2=1&stream_position=midroll&stream_id=[stream_id]&network_user_id=[user_id]";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -53,11 +54,23 @@ public class UnlockFragment extends Fragment implements View.OnClickListener {
         Button button = view.findViewById(R.id.unlockWithTruex);
         button.setOnClickListener(this);
 
+        // We are presenting our ads in landscape.
+        Activity activity = getActivity();
+        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+
         // Helper function to fetch ad to vastMap
         // This should be pointing to your ad server, where a true[X] ad is booked.
         fetchAd(AD_SERVER);
 
         return view;
+    }
+
+    @Override
+    public void onDetach() {
+        // Restore portrait orientation for normal usage.
+        Activity activity = getActivity();
+        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
+        super.onDetach();
     }
 
     @Override
@@ -116,7 +129,7 @@ public class UnlockFragment extends Fragment implements View.OnClickListener {
     // MARK: - TrueX Ad Renderer
     private void startTruexAdRenderer(JSONObject vastConfigJSON) {
         if (truexAdRenderer != null) {
-            truexAdRenderer.destroy();
+            truexAdRenderer.stop();
             truexAdRenderer = null;
         }
 
@@ -124,24 +137,24 @@ public class UnlockFragment extends Fragment implements View.OnClickListener {
         truexAdRenderer = new TruexAdRenderer(getContext());
 
         // Set-up the event listeners
-        truexAdRenderer.addEventListener(TruexAdEvent.AD_FETCH_COMPLETED, this.adFetchCompleted);
-        truexAdRenderer.addEventListener(TruexAdEvent.AD_STARTED, this.adStarted);
-        truexAdRenderer.addEventListener(TruexAdEvent.AD_COMPLETED, this.adCompleted);
-        truexAdRenderer.addEventListener(TruexAdEvent.AD_ERROR, this.adError);
-        truexAdRenderer.addEventListener(TruexAdEvent.NO_ADS_AVAILABLE, this.noAds);
-        truexAdRenderer.addEventListener(TruexAdEvent.AD_FREE_POD, this.adFree);
-        truexAdRenderer.addEventListener(TruexAdEvent.USER_CANCEL, this.userCancel);
-        truexAdRenderer.addEventListener(TruexAdEvent.OPT_IN, this.optIn);
-        truexAdRenderer.addEventListener(TruexAdEvent.OPT_OUT, this.optOut);
-        truexAdRenderer.addEventListener(TruexAdEvent.SKIP_CARD_SHOWN, this.skipCardShown);
-        truexAdRenderer.addEventListener(TruexAdEvent.POPUP_WEBSITE, this.popUp);
+        truexAdRenderer.addEventListener(TruexAdEvent.AD_FETCH_COMPLETED, this::adFetchCompleted);
+        truexAdRenderer.addEventListener(TruexAdEvent.AD_STARTED, this::adStarted);
+        truexAdRenderer.addEventListener(TruexAdEvent.AD_DISPLAYED, this::adDisplayed);
+        truexAdRenderer.addEventListener(TruexAdEvent.AD_COMPLETED, this::adCompleted);
+        truexAdRenderer.addEventListener(TruexAdEvent.AD_ERROR, this::adError);
+        truexAdRenderer.addEventListener(TruexAdEvent.NO_ADS_AVAILABLE, this::noAds);
+        truexAdRenderer.addEventListener(TruexAdEvent.AD_FREE_POD, this::adFree);
+        truexAdRenderer.addEventListener(TruexAdEvent.USER_CANCEL, this::userCancel);
+        truexAdRenderer.addEventListener(TruexAdEvent.OPT_IN, this::optIn);
+        truexAdRenderer.addEventListener(TruexAdEvent.OPT_OUT, this::optOut);
+        truexAdRenderer.addEventListener(TruexAdEvent.SKIP_CARD_SHOWN, this::skipCardShown);
+        truexAdRenderer.addEventListener(TruexAdEvent.POPUP_WEBSITE, this::popUp);
 
         // init and start TruexAdRenderer
         TruexAdOptions options = new TruexAdOptions();
         ViewGroup viewGroup = (ViewGroup) getView().findViewById(R.id.unlockScreenLayout);
-        truexAdRenderer.init(vastConfigJSON, options, () -> {
-            truexAdRenderer.start(viewGroup);
-        });
+        truexAdRenderer.init(vastConfigJSON, options);
+        truexAdRenderer.start(viewGroup);
     }
 
     /**
@@ -175,109 +188,118 @@ public class UnlockFragment extends Fragment implements View.OnClickListener {
     public void onDestroy() {
         Log.d(CLASSTAG, "onDestroy");
         if (truexAdRenderer != null) {
-            truexAdRenderer.destroy();
+            truexAdRenderer.stop();
         }
         super.onDestroy();
     }
 
-    /*
-       Note: This event is triggered when the init call is finished, and the ad is fetched/ready
+    /**
+     * Note: This event is triggered when the init call is finished, and the ad is fetched/ready
      */
-    private IEventEmitter.IEventHandler adFetchCompleted = (TruexAdEvent event, Map<String, ?> data) -> {
+    private void adFetchCompleted(TruexAdEvent event, Map<String, ?> data) {
         Log.d(CLASSTAG, "adFetchCompleted");
         toast("adFetchCompleted");
         // Truex Ad Renderer is ready to start() if not started in the init callback
     };
 
-    /*
-       Note: This event is triggered when the ad starts
+    /**
+     * Note: This event is triggered when the ad starts
      */
-    private IEventEmitter.IEventHandler adStarted = (TruexAdEvent event, Map<String, ?> data) -> {
+    private void adStarted(TruexAdEvent event, Map<String, ?> data) {
         Log.d(CLASSTAG, "adStarted");
         toast("adStarted");
     };
 
-    /*
-     * [4] - Integration Doc/Notes
-       Note: This event is triggered when the engagement is completed,
-       either by the completion of the engagement or the user exiting the engagement
+    /**
+     * Note: This event is triggered when the ad visual assets are loaded and visible.
+     * This then is a good time to switch to showing it if the host app is using its own ad
+     * loading screen.
      */
-    private IEventEmitter.IEventHandler adCompleted = (TruexAdEvent event, Map<String, ?> data) -> {
+    private void adDisplayed(TruexAdEvent event, Map<String, ?> data) {
+        Log.d(CLASSTAG, "adDisplayed");
+        toast("adDisplayed");
+    };
+
+    /**
+     * [4] - Integration Doc/Notes
+     * Note: This event is triggered when the engagement is completed,
+     * either by the completion of the engagement or the user exiting the engagement
+     */
+    private void adCompleted(TruexAdEvent event, Map<String, ?> data) {
         Log.d(CLASSTAG, "adCompleted");
         toast("adCompleted");
     };
 
-    /*
+    /**
      * [4] - Integration Doc/Notes
-       Note: This event is triggered when an error is encountered by the true[X] ad renderer
+     * Note: This event is triggered when an error is encountered by the true[X] ad renderer
      */
-    private IEventEmitter.IEventHandler adError = (TruexAdEvent event, Map<String, ?> data) -> {
+    private void adError(TruexAdEvent event, Map<String, ?> data) {
         Log.d(CLASSTAG, "adError");
         toast("adError");
     };
 
-    /*
+    /**
      * [4] - Integration Doc/Notes
-       Note: This event is triggered if the engagement fails to load,
-       as a result of there being no engagements available
+     * Note: This event is triggered if the engagement fails to load,
+     * as a result of there being no engagements available
      */
-    private IEventEmitter.IEventHandler noAds = (TruexAdEvent event, Map<String, ?> data) -> {
+    private void noAds(TruexAdEvent event, Map<String, ?> data) {
         Log.d(CLASSTAG, "noAds");
         toast("noAds");
     };
 
-    /*
-       [3] - Integration Doc/Notes
-       Note: This event is triggered when the viewer has earned their true[ATTENTION] credit. We
-       could skip over the linear ads here, so that when the ad is complete, all we would need
-       to do is resume the stream.
+    /**
+     * [3] - Integration Doc/Notes
+     * Note: This event is triggered when the viewer has earned their true[ATTENTION] credit. We
+     * could skip over the linear ads here, so that when the ad is complete, all we would need
+     * to do is resume the stream.
      */
-    private IEventEmitter.IEventHandler adFree = (TruexAdEvent event, Map<String, ?> data) -> {
+    private void adFree(TruexAdEvent event, Map<String, ?> data) {
         Log.d(CLASSTAG, "adFree");
         toast("adFree");
-
         userEarnedCredit();
     };
 
-    /*
-       Note: This event is triggered when a user cancels an interactive engagement
+    /**
+     * Note: This event is triggered when a user cancels an interactive engagement
      */
-    private IEventEmitter.IEventHandler userCancel = (TruexAdEvent event, Map<String, ?> data) -> {
+    private void userCancel(TruexAdEvent event, Map<String, ?> data) {
         Log.d(CLASSTAG, "userCancel");
         toast("userCancel");
     };
 
-    /*
-       Note: This event is triggered when a user opts-in to an interactive engagement
+    /**
+     * Note: This event is triggered when a user opts-in to an interactive engagement
      */
-    private IEventEmitter.IEventHandler optIn = (TruexAdEvent event, Map<String, ?> data) -> {
+    private void optIn(TruexAdEvent event, Map<String, ?> data) {
         Log.d(CLASSTAG, "optIn");
         toast("optIn");
     };
 
-    /*
-       Note: This event is triggered when a user opts-out of an interactive engagement,
-       either by time-out, or by choice
+    /**
+     * Note: This event is triggered when a user opts-out of an interactive engagement,
+     * either by time-out, or by choice
      */
-    private IEventEmitter.IEventHandler optOut = (TruexAdEvent event, Map<String, ?> data) -> {
+    private void optOut(TruexAdEvent event, Map<String, ?> data) {
         Log.d(CLASSTAG, "optOut");
         toast("optOut");
     };
 
-    /*
-       Note: This event is triggered when a skip card is being displayed to the user
-       This occurs when a user is able to skip ads
+    /**
+     * Note: This event is triggered when a skip card is being displayed to the user
+     * This occurs when a user is able to skip ads
      */
-    private IEventEmitter.IEventHandler skipCardShown = (TruexAdEvent event, Map<String, ?> data) -> {
+    private void skipCardShown(TruexAdEvent event, Map<String, ?> data) {
         Log.d(CLASSTAG, "skipCardShown");
         toast("skipCardShown");
     };
 
-    /*
-        Note: This event is triggered when a pop up is to be displayed.  Publisher app is
-        responsible for pausing/resuming the Truex Ad Renderer
-    */
-    private IEventEmitter.IEventHandler popUp = (TruexAdEvent event, Map<String, ?> data) -> {
+    /**
+     * Note: This event is triggered when a pop up is to be displayed.  Publisher app is
+     * responsible for pausing/resuming the Truex Ad Renderer
+     */
+    private void popUp(TruexAdEvent event, Map<String, ?> data) {
         Log.d(CLASSTAG, "popUp");
         toast("popUp");
 
@@ -287,7 +309,6 @@ public class UnlockFragment extends Fragment implements View.OnClickListener {
         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
         startActivity(browserIntent);
     };
-
 
 
     // MARK: - Helper Functions / Fake Ad Framework
@@ -364,7 +385,7 @@ public class UnlockFragment extends Fragment implements View.OnClickListener {
                     }
                     vastReady = true;
 
-                    Boolean DEBUG = false;
+                    boolean DEBUG = false;
                     if (DEBUG) {
                         JSONObject json = new JSONObject(vastMap);
                         Log.v(CLASSTAG, json.toString());

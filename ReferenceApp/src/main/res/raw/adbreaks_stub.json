@@ -6,7 +6,7 @@
       "videoAdDuration": "92",
       "ads": [
         {
-          "adUrl": "https://get.truex.com/d6db271334a18f547f83182fcf3f6947915265c2/vast/config?network_user_id=%25%25ADVERTISING_IDENTIFIER_PLAIN%25%25&dimension_1=%25%25VIDEO_TITLE%25%25&dimension_2=1&dimension_4=%25%25VIDEO_ID%25%25&dimension_5=evergreen&stream_position=midroll&cb=%25%25CACHEBUSTER%25%25onPopupWebsite"
+          "adUrl": "https://get.truex.com/22c36d3926383ba62994809a60b4649e3ced1070/vast/config?network_user_id=%25%25ADVERTISING_IDENTIFIER_PLAIN%25%25&dimension_1=%25%25VIDEO_TITLE%25%25&dimension_2=1&dimension_4=%25%25VIDEO_ID%25%25&dimension_5=evergreen&stream_position=midroll&cb=%25%25CACHEBUSTER%25%25onPopupWebsite"
         },
         {
           "adUrl": "https://ctv.truex.com/assets/coffee-720p.mp4"
@@ -25,7 +25,7 @@
       "videoAdDuration": "92",
       "ads": [
         {
-          "adUrl": "https://get.truex.com/d6db271334a18f547f83182fcf3f6947915265c2/vast/config?network_user_id=%25%25ADVERTISING_IDENTIFIER_PLAIN%25%25&dimension_1=%25%25VIDEO_TITLE%25%25&dimension_2=1&dimension_4=%25%25VIDEO_ID%25%25&dimension_5=evergreen&stream_position=midroll&cb=%25%25CACHEBUSTER%25%25onPopupWebsite"
+          "adUrl": "https://get.truex.com/22c36d3926383ba62994809a60b4649e3ced1070/vast/config?network_user_id=%25%25ADVERTISING_IDENTIFIER_PLAIN%25%25&dimension_1=%25%25VIDEO_TITLE%25%25&dimension_2=1&dimension_4=%25%25VIDEO_ID%25%25&dimension_5=evergreen&stream_position=midroll&cb=%25%25CACHEBUSTER%25%25onPopupWebsite"
         },
         {
           "adUrl": "https://ctv.truex.com/assets/coffee-720p.mp4"

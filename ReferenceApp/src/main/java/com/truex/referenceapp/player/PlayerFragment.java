@@ -1,6 +1,8 @@
 package com.truex.referenceapp.player;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -12,15 +14,12 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import com.google.android.exoplayer2.ExoPlayerFactory;
+import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
-import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
@@ -69,7 +68,19 @@ public class PlayerFragment extends Fragment implements PlaybackHandler, Playbac
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        // Force playback in landscape.
+        Activity activity = getActivity();
+        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+
         return inflater.inflate(R.layout.fragment_player, container, false);
+    }
+
+    @Override
+    public void onDetach() {
+        // Restore portrait orientation for normal usage.
+        Activity activity = getActivity();
+        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
+        super.onDetach();
     }
 
     @Override
@@ -234,34 +245,27 @@ public class PlayerFragment extends Fragment implements PlaybackHandler, Playbac
 
         displayMode = DisplayMode.LINEAR_ADS;
 
-        MediaSource[] ads = new MediaSource[3];
+        List<MediaSource> ads = new ArrayList<>();
 
-        List<String> adUrls = this.currentAdBreak.adUrls;
-        List<String> playableAds = new ArrayList<>();
-        for (int i = 0; i < adUrls.size(); i++) {
-            String url = adUrls.get(i);
-            if (!isTruexAdUrl(url)) {
-                playableAds.add(url);
-            }
+        // Find the fallback ad videos.
+        for (String url : this.currentAdBreak.adUrls) {
+            if (isTruexAdUrl(url)) continue;
+            Uri uri = Uri.parse(url);
+            MediaSource source = new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(MediaItem.fromUri(uri));
+            ads.add(source);
         }
 
-        for(int i = 0; i < playableAds.size(); i++) {
-            Uri uri = Uri.parse(playableAds.get(i));
-            MediaSource source = new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(uri);
-            ads[i] = source;
-        }
-
-        MediaSource adPod = new ConcatenatingMediaSource(ads);
-        SimpleExoPlayer player = getPlayer();
-        player.prepare(adPod);
+        MediaSource adPod = new ConcatenatingMediaSource(ads.toArray(new MediaSource[0]));
+        ExoPlayer player = (ExoPlayer)playerView.getPlayer();
         player.setPlayWhenReady(true);
+        player.setMediaSource(adPod);
+        player.prepare();
         playerView.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void handlePopup(String url) {
         Log.i(CLASSTAG, "handlePopup: " + url);
-
         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
         startActivity(browserIntent);
     }
@@ -315,18 +319,16 @@ public class PlayerFragment extends Fragment implements PlaybackHandler, Playbac
         displayMode = DisplayMode.CONTENT_STREAM;
 
         Uri uri = Uri.parse(CONTENT_STREAM_URL);
-        MediaSource source = new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(uri);
-
-        SimpleExoPlayer player = getPlayer();
-        player.prepare(source);
-        if (resumePosition > 0) player.seekTo(resumePosition);
+        MediaSource source = new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(MediaItem.fromUri(uri));
+        ExoPlayer player = (ExoPlayer) playerView.getPlayer();
         player.setPlayWhenReady(true);
+        player.setMediaSource(source);
+        player.prepare();
+        if (resumePosition > 0) player.seekTo(resumePosition);
     }
 
     private void setupExoPlayer() {
-        TrackSelection.Factory trackSelectionFactory = new AdaptiveTrackSelection.Factory();
-        DefaultTrackSelector trackSelector = new DefaultTrackSelector(trackSelectionFactory);
-        SimpleExoPlayer player = ExoPlayerFactory.newSimpleInstance(requireContext(), trackSelector);
+        ExoPlayer player = new ExoPlayer.Builder(requireContext()).build();
 
         if (getView() != null) {
             playerView = getView().findViewById(R.id.player_view);
@@ -334,7 +336,7 @@ public class PlayerFragment extends Fragment implements PlaybackHandler, Playbac
         }
 
         // Listen for player events so that we can load the true[X] ad manager when the video stream starts
-        player.addListener(new PlayerEventListener(this, this));
+        player.addListener(new PlayerEventListener(this));
     }
 
     private void setupDataSourceFactory() {
@@ -348,11 +350,9 @@ public class PlayerFragment extends Fragment implements PlaybackHandler, Playbac
      * Note: We call this method when the application is stopped
      */
     public void closeStream() {
-        Log.d(CLASSTAG, "cancelStream");
-        if (playerView.getPlayer() == null) {
-            return;
-        }
+        Log.d(CLASSTAG, "closeStream");
         Player player = playerView.getPlayer();
+        if (player == null) return;
         playerView.setPlayer(null);
         player.release();
     }
@@ -381,12 +381,12 @@ public class PlayerFragment extends Fragment implements PlaybackHandler, Playbac
         }
     }
 
-    private SimpleExoPlayer getPlayer() {
-        return playerView != null ? (SimpleExoPlayer) playerView.getPlayer() : null;
+    private ExoPlayer getPlayer() {
+        return playerView != null ? (ExoPlayer) playerView.getPlayer() : null;
     }
 
     private long getContentPosition() {
-        SimpleExoPlayer player = getPlayer();
+        ExoPlayer player = getPlayer();
         return player != null ? player.getContentPosition() : 0;
     }
 
