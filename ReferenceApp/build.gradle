@@ -49,12 +49,10 @@ android {
 }
 
 repositories {
-    if (buildType == "qa" || buildType == "prod") {
-        maven {
-            url "https://s3.amazonaws.com/android.truex.com/tar/" + buildType + "/maven"
-        }
-    } else {
-        throw new GradleException('Invalid build type ' + buildType + '.  Expecting qa or prod')
+    maven {
+        // Uncomment one or the other to use qa vs prod version of TAR lib.
+        //url "https://s3.amazonaws.com/android.truex.com/tar/qa/maven"
+        url "https://s3.amazonaws.com/android.truex.com/tar/prod/maven"
     }
 }
 
