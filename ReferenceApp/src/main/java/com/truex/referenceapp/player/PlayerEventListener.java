@@ -25,7 +25,7 @@ public class PlayerEventListener implements Player.Listener {
         // for simple .mp4 streams, even from videos playing in a web view, not technically even related to
         // the current player instance.
         Log.e(CLASSTAG, "onPlayerError: " + error);
-        //playbackHandler.cancelStream();
+        //playbackHandler.closeStream();
     }
 
     @Override
