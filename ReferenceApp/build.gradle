@@ -11,7 +11,7 @@ buildscript {
 }
 
 android {
-    compileSdkVersion 33
+    compileSdk 33
     defaultConfig {
         applicationId "com.truex.referenceapp"
         minSdkVersion 21
