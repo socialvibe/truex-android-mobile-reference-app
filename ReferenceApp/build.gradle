@@ -1,6 +1,6 @@
 apply plugin: 'com.android.application'
 
-def APP_VERSION = "2.2.0" // The version must be updated every build. Git+Travis will also report if there will be an issue on a pull request
+def APP_VERSION = "2.2.1" // The version must be updated every build. Git+Travis will also report if there will be an issue on a pull request
 def TAR_VERSION = "2.6.1"
 def APK_FILENAME = "Truex-Android-ReferenceApp-" + APP_VERSION + ".apk";
 
@@ -11,7 +11,7 @@ buildscript {
 }
 
 android {
-    compileSdkVersion 33
+    compileSdk 33
     defaultConfig {
         applicationId "com.truex.referenceapp"
         minSdkVersion 21
