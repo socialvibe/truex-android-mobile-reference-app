@@ -32,23 +32,7 @@ before_script:
   - ./gradlew -v
 
 script:
-  - BUILD_TYPE="qa"
-  - if [[ "$TRAVIS_BRANCH" == "master" ]]; then BUILD_TYPE="prod" ; fi
-  - ./deploy/build.sh "$BUILD_TYPE" || travis_terminate 1
-
-deploy:
-  provider: s3
-  access_key_id: $AWS_ACCESS_KEY_ID
-  secret_access_key: $AWS_SECRET_ACCESS_KEY
-  bucket: "android.truex.com"
-  skip_cleanup: true
-  glob: "*.apk"
-  local_dir: ReferenceApp/build/outputs/apk/phone/debug/
-  upload-dir: mobile/$BUILD_TYPE/builds/referenceapp
-  on:
-    # Travis rejects deployments to develop by default.  Override.
-    all_branches: true
-    condition: $TRAVIS_BRANCH =~ ^(develop|master)$
+  - ./deploy/deploy.sh || travis_terminate 1
 
 # These are required due to "a peculiarity of dependency caching with Gradle":
 # https://docs.travis-ci.com/user/languages/android/#caching
