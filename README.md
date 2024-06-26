@@ -17,7 +17,7 @@ Add the maven repository to your build.gradle
 Add the TAR dependency to your project
 ```
     // We recommend using a specific version, but using the latest patch release for any critical hotfixes
-    implementation 'com.truex:TruexAdRenderer-Android:2.6.+'
+    implementation 'com.truex:TruexAdRenderer-Android:2.8.2'
 ```
 
 ## Steps
