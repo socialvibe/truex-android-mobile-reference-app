@@ -23,7 +23,7 @@ elif [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
 else
   echo "Starting gradle build and deployment to $S3_PATH"
   ./gradlew clean build -Pbuild_type=$BUILD_TYPE
-  aws s3 cp ReferenceApp/build/outputs/apk/phone/debug/$APK_FILENAME $S3_PATH/$APK_FILENAME || exit 1
+  aws s3 cp ReferenceApp/build/outputs/apk/phone/debug/$APK_FILENAME $S3_PATH/$APK_FILENAME --acl public-read || exit 1
 fi
 
 exit 0
