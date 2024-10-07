@@ -12,18 +12,19 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.OptIn;
 import androidx.fragment.app.Fragment;
+import androidx.media3.common.MediaItem;
+import androidx.media3.common.util.UnstableApi;
+import androidx.media3.common.util.Util;
+import androidx.media3.datasource.DataSource;
+import androidx.media3.datasource.DefaultDataSourceFactory;
+import androidx.media3.exoplayer.ExoPlayer;
+import androidx.media3.exoplayer.source.ConcatenatingMediaSource2;
+import androidx.media3.exoplayer.source.MediaSource;
+import androidx.media3.exoplayer.source.ProgressiveMediaSource;
+import androidx.media3.ui.PlayerView;
 
-import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.MediaItem;
-import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
-import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.ProgressiveMediaSource;
-import com.google.android.exoplayer2.ui.PlayerView;
-import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
-import com.google.android.exoplayer2.util.Util;
 import com.truex.referenceapp.R;
 import com.truex.referenceapp.ads.AdBreak;
 import com.truex.referenceapp.ads.TruexAdManager;
@@ -39,16 +40,16 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+@OptIn(markerClass = UnstableApi.class)
 public class PlayerFragment extends Fragment implements PlaybackHandler, PlaybackStateListener {
     private static final String CLASSTAG = "PlayerFragment";
     private static final String CONTENT_STREAM_URL = "https://ctv.truex.com/assets/reference-app-stream-no-ads-720p.mp4";
 
-    // This player view is used to display a fake stream that mimics actual video content
     private PlayerView playerView;
+    private ExoPlayer player;
 
     private Boolean isPaused;
 
-    // The data-source factory is used to build media-sources
     private DataSource.Factory dataSourceFactory;
 
     // We need to hold onto the ad manager so that the ad manager can listen for lifecycle events
@@ -116,8 +117,8 @@ public class PlayerFragment extends Fragment implements PlaybackHandler, Playbac
         }
 
         // Resume video playback
-        if (playerView.getPlayer() != null && displayMode != DisplayMode.INTERACTIVE_AD) {
-            playerView.getPlayer().setPlayWhenReady(true);
+        if (player != null && displayMode != DisplayMode.INTERACTIVE_AD) {
+            player.setPlayWhenReady(true);
         }
     }
 
@@ -132,8 +133,8 @@ public class PlayerFragment extends Fragment implements PlaybackHandler, Playbac
         }
 
         // Pause video playback
-        if (playerView.getPlayer() != null && displayMode != DisplayMode.INTERACTIVE_AD) {
-            playerView.getPlayer().setPlayWhenReady(false);
+        if (player != null && displayMode != DisplayMode.INTERACTIVE_AD) {
+            player.setPlayWhenReady(false);
         }
     }
 
@@ -195,7 +196,7 @@ public class PlayerFragment extends Fragment implements PlaybackHandler, Playbac
      */
     public void resumeStream() {
         Log.d(CLASSTAG, "resumeStream");
-        if (playerView.getPlayer() == null) {
+        if (player == null) {
             return;
         }
         playerView.setVisibility(View.VISIBLE);
@@ -203,7 +204,7 @@ public class PlayerFragment extends Fragment implements PlaybackHandler, Playbac
 
         clearCurrentAdBreak();
         if (!this.isPaused) {
-            playerView.getPlayer().setPlayWhenReady(true);
+            player.setPlayWhenReady(true);
         }
     }
 
@@ -213,10 +214,10 @@ public class PlayerFragment extends Fragment implements PlaybackHandler, Playbac
      */
     public void pauseStream() {
         Log.d(CLASSTAG, "pauseStream");
-        if (playerView.getPlayer() == null) {
+        if (player == null) {
             return;
         }
-        playerView.getPlayer().setPlayWhenReady(false);
+        player.setPlayWhenReady(false);
         playerView.setVisibility(View.GONE);
     }
 
@@ -239,24 +240,23 @@ public class PlayerFragment extends Fragment implements PlaybackHandler, Playbac
      */
     public void displayLinearAds() {
         Log.d(CLASSTAG, "displayLinearAds");
-        if (playerView.getPlayer() == null) {
+        if (player == null) {
             return;
         }
 
         displayMode = DisplayMode.LINEAR_ADS;
 
-        List<MediaSource> ads = new ArrayList<>();
+        ConcatenatingMediaSource2.Builder adBreakBuilder = new ConcatenatingMediaSource2.Builder();
 
         // Find the fallback ad videos.
         for (String url : this.currentAdBreak.adUrls) {
             if (isTruexAdUrl(url)) continue;
             Uri uri = Uri.parse(url);
             MediaSource source = new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(MediaItem.fromUri(uri));
-            ads.add(source);
+            adBreakBuilder.add(source);
         }
 
-        MediaSource adPod = new ConcatenatingMediaSource(ads.toArray(new MediaSource[0]));
-        ExoPlayer player = (ExoPlayer)playerView.getPlayer();
+        MediaSource adPod = adBreakBuilder.build();
         player.setPlayWhenReady(true);
         player.setMediaSource(adPod);
         player.prepare();
@@ -293,7 +293,7 @@ public class PlayerFragment extends Fragment implements PlaybackHandler, Playbac
     // [2] - Integration Doc/Notes
     private void displayInteractiveAd(String vastUrl) {
         Log.d(CLASSTAG, "displayInteractiveAds");
-        if (playerView.getPlayer() == null) {
+        if (player == null) {
             return;
         }
 
@@ -312,7 +312,7 @@ public class PlayerFragment extends Fragment implements PlaybackHandler, Playbac
 
     private void displayContentStream() {
         Log.d(CLASSTAG, "displayContentStream");
-        if (playerView.getPlayer() == null) {
+        if (player == null) {
             return;
         }
 
@@ -320,7 +320,6 @@ public class PlayerFragment extends Fragment implements PlaybackHandler, Playbac
 
         Uri uri = Uri.parse(CONTENT_STREAM_URL);
         MediaSource source = new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(MediaItem.fromUri(uri));
-        ExoPlayer player = (ExoPlayer) playerView.getPlayer();
         player.setPlayWhenReady(true);
         player.setMediaSource(source);
         player.prepare();
@@ -328,7 +327,7 @@ public class PlayerFragment extends Fragment implements PlaybackHandler, Playbac
     }
 
     private void setupExoPlayer() {
-        ExoPlayer player = new ExoPlayer.Builder(requireContext()).build();
+        this.player = new ExoPlayer.Builder(requireContext()).build();
 
         if (getView() != null) {
             playerView = getView().findViewById(R.id.player_view);
@@ -351,7 +350,6 @@ public class PlayerFragment extends Fragment implements PlaybackHandler, Playbac
      */
     public void closeStream() {
         Log.d(CLASSTAG, "closeStream");
-        Player player = playerView.getPlayer();
         if (player == null) return;
         playerView.setPlayer(null);
         player.release();
@@ -382,11 +380,10 @@ public class PlayerFragment extends Fragment implements PlaybackHandler, Playbac
     }
 
     private ExoPlayer getPlayer() {
-        return playerView != null ? (ExoPlayer) playerView.getPlayer() : null;
+        return player;
     }
 
     private long getContentPosition() {
-        ExoPlayer player = getPlayer();
         return player != null ? player.getContentPosition() : 0;
     }
 
