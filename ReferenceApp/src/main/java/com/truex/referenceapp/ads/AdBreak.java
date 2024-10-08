@@ -43,7 +43,7 @@ public class AdBreak {
         String[] parts = hhmmss.split(":");
         if (parts.length < 1 || parts.length > 3) throw new JSONException("invalid contentPosition: " + hhmmss);
         int seconds = 0;
-        for(int i = parts.length-1; i >= 0; i--) {
+        for(int i = 0; i < parts.length; i++) {
             int timeValue = Integer.parseInt(parts[i]);
             seconds = seconds * 60 + timeValue;
         }
