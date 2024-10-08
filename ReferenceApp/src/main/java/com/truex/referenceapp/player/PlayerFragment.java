@@ -263,6 +263,7 @@ public class PlayerFragment extends Fragment implements PlaybackHandler, Playbac
         player.setMediaSource(adPod);
         player.prepare();
         playerView.setVisibility(View.VISIBLE);
+        playerView.hideController();
     }
 
     @Override
@@ -325,6 +326,7 @@ public class PlayerFragment extends Fragment implements PlaybackHandler, Playbac
         player.setPlayWhenReady(true);
         player.setMediaSource(source);
         player.prepare();
+        playerView.hideController();
         if (resumePosition > 0) player.seekTo(resumePosition);
     }
 
