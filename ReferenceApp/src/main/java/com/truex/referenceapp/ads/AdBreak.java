@@ -42,12 +42,12 @@ public class AdBreak {
         if (hhmmss == null) throw new JSONException("missing contentPosition");
         String[] parts = hhmmss.split(":");
         if (parts.length < 1 || parts.length > 3) throw new JSONException("invalid contentPosition: " + hhmmss);
-        long position = 0;
+        int seconds = 0;
         for(int i = parts.length-1; i >= 0; i--) {
             int timeValue = Integer.parseInt(parts[i]);
-            position = position * 60 + timeValue;
+            seconds = seconds * 60 + timeValue;
         }
-        return position;
+        return (long) seconds * 1000;
     }
 
     public String getFirstAd() {
