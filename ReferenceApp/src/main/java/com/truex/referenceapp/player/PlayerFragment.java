@@ -259,6 +259,7 @@ public class PlayerFragment extends Fragment implements PlaybackHandler, Playbac
         }
 
         MediaSource adPod = adBreakBuilder.build();
+        setAdMarkers(null); // no ad markers when displaying the ad itself
         player.setPlayWhenReady(true);
         player.setMediaSource(adPod);
         player.prepare();
@@ -323,6 +324,7 @@ public class PlayerFragment extends Fragment implements PlaybackHandler, Playbac
 
         Uri uri = Uri.parse(CONTENT_STREAM_URL);
         MediaSource source = new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(MediaItem.fromUri(uri));
+        setAdMarkers(adBreaks);
         player.setPlayWhenReady(true);
         player.setMediaSource(source);
         player.prepare();
@@ -407,6 +409,23 @@ public class PlayerFragment extends Fragment implements PlaybackHandler, Playbac
         }
         return result;
     }
+
+    private void setAdMarkers(List<AdBreak> adBreaks) {
+        long[] extraAdGroupTimesMs = null;
+        boolean[] extraPlayedAdGroups = null;
+        if (adBreaks != null && adBreaks.size() > 0) {
+            // Set up the ad markers.
+            extraAdGroupTimesMs = new long[adBreaks.size()];
+            extraPlayedAdGroups = new boolean[adBreaks.size()];
+            for (int i = 0; i < adBreaks.size(); i++) {
+                AdBreak adBreak = adBreaks.get(i);
+                extraAdGroupTimesMs[i] = adBreak.contentPositionMs;
+                extraPlayedAdGroups[i] = adBreak.viewed;
+            }
+        }
+        playerView.setExtraAdGroupMarkers(extraAdGroupTimesMs, extraPlayedAdGroups);
+    }
+
 
     private String getRawFileContents(int resourceId) {
         InputStream vastContentStream = getContext().getResources().openRawResource(resourceId);
