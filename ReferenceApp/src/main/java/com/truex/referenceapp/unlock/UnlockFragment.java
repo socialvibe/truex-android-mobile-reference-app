@@ -34,6 +34,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -41,7 +42,7 @@ public class UnlockFragment extends Fragment implements View.OnClickListener {
     private static final String CLASSTAG = UnlockFragment.class.getSimpleName();
     private TruexAdRenderer truexAdRenderer;
     private Context context;
-    private Map vastMap = null;
+    private Map<String, Object> vastMap = null;
     private Boolean vastReady = false;
     private final String AD_SERVER = "https://get.truex.com/6789e783ea2421ab2272794dbf8550ef2a9ace38/vast/solo?dimension_5=confirmation-test&network_user_id=[user-id]";
 
@@ -75,10 +76,8 @@ public class UnlockFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public void onClick(View view) {
-        switch (view.getId()){
-            case R.id.unlockWithTruex:
-                unlockButtonClicked();
-                break;
+        if (view.getId() == R.id.unlockWithTruex) {
+            unlockButtonClicked();
         }
     }
 
@@ -99,16 +98,16 @@ public class UnlockFragment extends Fragment implements View.OnClickListener {
         try {
             // Just checking the 1st ad here to simplify the flow in this example
             // currentAd = vastMap["Ad"][0]["InLine"][0];
-            Map currentAd = get(get(vastMap, "Ad", 0), "InLine", 0);
+            Map<String, Object> currentAd = getNthItem(getNthItem(vastMap, "Ad", 0), "InLine", 0);
             // adSystem = currentAd["AdSystem"][0]["CDATA"];
-            String adSystem = (String)get(currentAd, "AdSystem", 0).get("CDATA");
-            Boolean isTruexAd = (adSystem.startsWith("trueX"));
+            String adSystem = (String) getNthItem(currentAd, "AdSystem", 0).get("CDATA");
+            boolean isTruexAd = (adSystem.startsWith("trueX"));
 
             if (isTruexAd) {
                 // creative = currentAd["Creatives"][0]["Creative"][0];
-                Map creative = get(get(currentAd, "Creatives", 0), "Creative", 0);
+                Map creative = getNthItem(getNthItem(currentAd, "Creatives", 0), "Creative", 0);
                 // adParametersString = creative["Linear"][0]["AdParameters"][0]["CDATA"];
-                String adParametersString = (String)get(get(creative, "Linear", 0), "AdParameters", 0).get("CDATA");
+                String adParametersString = (String) getNthItem(getNthItem(creative, "Linear", 0), "AdParameters", 0).get("CDATA");
                 JSONObject adParameters = new JSONObject(adParametersString);
                 startTruexAdRenderer(adParameters);
             } else {
@@ -200,7 +199,7 @@ public class UnlockFragment extends Fragment implements View.OnClickListener {
         Log.d(CLASSTAG, "adFetchCompleted");
         toast("adFetchCompleted");
         // Truex Ad Renderer is ready to start() if not started in the init callback
-    };
+    }
 
     /**
      * Note: This event is triggered when the ad starts
@@ -208,7 +207,7 @@ public class UnlockFragment extends Fragment implements View.OnClickListener {
     private void adStarted(TruexAdEvent event, Map<String, ?> data) {
         Log.d(CLASSTAG, "adStarted");
         toast("adStarted");
-    };
+    }
 
     /**
      * Note: This event is triggered when the ad visual assets are loaded and visible.
@@ -218,7 +217,7 @@ public class UnlockFragment extends Fragment implements View.OnClickListener {
     private void adDisplayed(TruexAdEvent event, Map<String, ?> data) {
         Log.d(CLASSTAG, "adDisplayed");
         toast("adDisplayed");
-    };
+    }
 
     /**
      * [4] - Integration Doc/Notes
@@ -228,7 +227,7 @@ public class UnlockFragment extends Fragment implements View.OnClickListener {
     private void adCompleted(TruexAdEvent event, Map<String, ?> data) {
         Log.d(CLASSTAG, "adCompleted");
         toast("adCompleted");
-    };
+    }
 
     /**
      * [4] - Integration Doc/Notes
@@ -237,7 +236,7 @@ public class UnlockFragment extends Fragment implements View.OnClickListener {
     private void adError(TruexAdEvent event, Map<String, ?> data) {
         Log.d(CLASSTAG, "adError");
         toast("adError");
-    };
+    }
 
     /**
      * [4] - Integration Doc/Notes
@@ -247,7 +246,7 @@ public class UnlockFragment extends Fragment implements View.OnClickListener {
     private void noAds(TruexAdEvent event, Map<String, ?> data) {
         Log.d(CLASSTAG, "noAds");
         toast("noAds");
-    };
+    }
 
     /**
      * [3] - Integration Doc/Notes
@@ -259,7 +258,7 @@ public class UnlockFragment extends Fragment implements View.OnClickListener {
         Log.d(CLASSTAG, "adFree");
         toast("adFree");
         userEarnedCredit();
-    };
+    }
 
     /**
      * Note: This event is triggered when a user cancels an interactive engagement
@@ -267,7 +266,7 @@ public class UnlockFragment extends Fragment implements View.OnClickListener {
     private void userCancel(TruexAdEvent event, Map<String, ?> data) {
         Log.d(CLASSTAG, "userCancel");
         toast("userCancel");
-    };
+    }
 
     /**
      * Note: This event is triggered when a user opts-in to an interactive engagement
@@ -275,7 +274,7 @@ public class UnlockFragment extends Fragment implements View.OnClickListener {
     private void optIn(TruexAdEvent event, Map<String, ?> data) {
         Log.d(CLASSTAG, "optIn");
         toast("optIn");
-    };
+    }
 
     /**
      * Note: This event is triggered when a user opts-out of an interactive engagement,
@@ -284,7 +283,7 @@ public class UnlockFragment extends Fragment implements View.OnClickListener {
     private void optOut(TruexAdEvent event, Map<String, ?> data) {
         Log.d(CLASSTAG, "optOut");
         toast("optOut");
-    };
+    }
 
     /**
      * Note: This event is triggered when a skip card is being displayed to the user
@@ -293,7 +292,7 @@ public class UnlockFragment extends Fragment implements View.OnClickListener {
     private void skipCardShown(TruexAdEvent event, Map<String, ?> data) {
         Log.d(CLASSTAG, "skipCardShown");
         toast("skipCardShown");
-    };
+    }
 
     /**
      * Note: This event is triggered when a pop up is to be displayed.  Publisher app is
@@ -308,7 +307,7 @@ public class UnlockFragment extends Fragment implements View.OnClickListener {
         // Be sure to pause and resume TruexAdRenderer if you are handling this request with an in-app webview.
         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
         startActivity(browserIntent);
-    };
+    }
 
 
     // MARK: - Helper Functions / Fake Ad Framework
@@ -334,7 +333,7 @@ public class UnlockFragment extends Fragment implements View.OnClickListener {
                     parser.setInput(is, null);
 
                     int eventType = parser.getEventType();
-                    Map current = null;
+                    Map<String, Object> current = null;
                     while (eventType != XmlPullParser.END_DOCUMENT) {
                         String elementName = "";
                         Map parent;
@@ -390,10 +389,8 @@ public class UnlockFragment extends Fragment implements View.OnClickListener {
                         JSONObject json = new JSONObject(vastMap);
                         Log.v(CLASSTAG, json.toString());
                     }
-                } catch (Error | XmlPullParserException | MalformedURLException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                } catch (Error | XmlPullParserException | IOException e) {
+                    throw new RuntimeException(e);
                 }
             }
         };
@@ -401,11 +398,11 @@ public class UnlockFragment extends Fragment implements View.OnClickListener {
         asyncThread.start();
     }
 
-    private Map get(Map map, String key, int index) {
+    private Map<String, Object> getNthItem(Map<String, Object> map, String key, int index) {
         if (map != null) {
-            ArrayList list = (ArrayList)map.get(key);
+            List<Map<String,Object>> list = (List<Map<String,Object>>) map.get(key);
             if (list != null) {
-                return (Map) list.get(index);
+                return list.get(index);
             }
         }
         return null;
