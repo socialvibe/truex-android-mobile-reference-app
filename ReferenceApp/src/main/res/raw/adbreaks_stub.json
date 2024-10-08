@@ -2,39 +2,45 @@
   "adBreaks": [
     {
       "breakId": "preroll",
-      "timeOffsetMs": "0",
-      "videoAdDuration": "92",
+      "contentPosition": "00:00:00",
       "ads": [
         {
-          "adUrl": "https://get.truex.com/6789e783ea2421ab2272794dbf8550ef2a9ace38/vast/config?dimension_5=confirmation-test"
+          "adUrl": "https://get.truex.com/6789e783ea2421ab2272794dbf8550ef2a9ace38/vast/config?dimension_5=confirmation-test",
+          "duration": 30
         },
         {
-          "adUrl": "https://ctv.truex.com/assets/coffee-720p.mp4"
+          "adUrl": "https://ctv.truex.com/assets/coffee-720p.mp4",
+          "duration": 30
         },
         {
-          "adUrl": "https://ctv.truex.com/assets/airline-720p.mp4"
+          "adUrl": "https://ctv.truex.com/assets/airline-720p.mp4",
+          "duration": 30
         },
         {
-          "adUrl": "https://ctv.truex.com/assets/petcare-720p.mp4"
+          "adUrl": "https://ctv.truex.com/assets/petcare-720p.mp4",
+          "duration": 32
         }
       ]
     },
     {
       "breakId": "midroll-1",
-      "timeOffsetMs": "600000",
-      "videoAdDuration": "92",
+      "contentPosition": "00:10:00",
       "ads": [
         {
-          "adUrl": "https://get.truex.com/6789e783ea2421ab2272794dbf8550ef2a9ace38/vast/config?dimension_5=PI-2431-CR-FEP-Ad"
+          "adUrl": "https://get.truex.com/6789e783ea2421ab2272794dbf8550ef2a9ace38/vast/config?dimension_5=PI-2431-CR-FEP-Ad",
+          "duration": 30
         },
         {
-          "adUrl": "https://ctv.truex.com/assets/coffee-720p.mp4"
+          "adUrl": "https://ctv.truex.com/assets/coffee-720p.mp4",
+          "duration": 30
         },
         {
-          "adUrl": "https://ctv.truex.com/assets/airline-720p.mp4"
+          "adUrl": "https://ctv.truex.com/assets/airline-720p.mp4",
+          "duration": 30
         },
         {
-          "adUrl": "https://ctv.truex.com/assets/petcare-720p.mp4"
+          "adUrl": "https://ctv.truex.com/assets/petcare-720p.mp4",
+          "duration": 32
         }
       ]
     }

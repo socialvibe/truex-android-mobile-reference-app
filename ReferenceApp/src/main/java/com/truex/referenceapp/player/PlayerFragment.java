@@ -15,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.OptIn;
 import androidx.fragment.app.Fragment;
 import androidx.media3.common.MediaItem;
+import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import androidx.media3.datasource.DataSource;
@@ -249,11 +250,12 @@ public class PlayerFragment extends Fragment implements PlaybackHandler, Playbac
         ConcatenatingMediaSource2.Builder adBreakBuilder = new ConcatenatingMediaSource2.Builder();
 
         // Find the fallback ad videos.
-        for (String url : this.currentAdBreak.adUrls) {
-            if (isTruexAdUrl(url)) continue;
-            Uri uri = Uri.parse(url);
-            MediaSource source = new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(MediaItem.fromUri(uri));
-            adBreakBuilder.add(source);
+        for(int i = 0; i < this.currentAdBreak.adUrls.size(); i++) {
+            String adUrl = this.currentAdBreak.adUrls.get(i);
+            if (isTruexAdUrl(adUrl)) continue;
+            long adDuration = this.currentAdBreak.adDurations.get(i) * 1000;
+            MediaSource adSource = new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(MediaItem.fromUri(adUrl));
+            adBreakBuilder.add(adSource, adDuration);
         }
 
         MediaSource adPod = adBreakBuilder.build();
@@ -277,7 +279,7 @@ public class PlayerFragment extends Fragment implements PlaybackHandler, Playbac
         long position = getContentPosition();
         for (int i = 0; i < adBreaks.size(); i++) {
             AdBreak adBreak = adBreaks.get(i);
-            if (position >= adBreak.timeOffsetMs && !adBreak.viewed) {
+            if (position >= adBreak.contentPositionMs && !adBreak.viewed) {
                 this.currentAdBreak = adBreak;
                 String firstAd = adBreak.getFirstAd();
                 if (isTruexAdUrl(firstAd)) {
@@ -388,23 +390,20 @@ public class PlayerFragment extends Fragment implements PlaybackHandler, Playbac
     }
 
     private List<AdBreak> getAdPayload(Integer resourceId) {
+        List<AdBreak> result = new ArrayList<>();
         String rawFile = getRawFileContents(resourceId);
         try {
             JSONObject rawJson = new JSONObject(rawFile);
-            JSONArray adBreaks = rawJson.getJSONArray("adBreaks");
-            List<AdBreak> result = new ArrayList<>();
+            JSONArray adBreaksJson = rawJson.getJSONArray("adBreaks");
 
-            for (int i = 0; i < adBreaks.length(); i++) {
-                AdBreak adBreak = new AdBreak();
-                adBreak.parseJson(adBreaks.getJSONObject(i));
+            for (int i = 0; i < adBreaksJson.length(); i++) {
+                AdBreak adBreak = AdBreak.fromJson(adBreaksJson.getJSONObject(i));
                 result.add(adBreak);
             }
-
-            return result;
         } catch (JSONException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
-        return null;
+        return result;
     }
 
     private String getRawFileContents(int resourceId) {
