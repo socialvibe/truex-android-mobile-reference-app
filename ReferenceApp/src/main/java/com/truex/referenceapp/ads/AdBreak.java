@@ -10,26 +10,44 @@ import java.util.List;
 
 public class AdBreak {
     public String id;
-    public int timeOffsetMs;
+    public long contentPositionMs;
     public int duration;
     public boolean viewed = false;
-    public List<String> adUrls = new ArrayList<>();
+    public List<String> adUrls;
+    public List<Integer> adDurations;
 
-    public void parseJson(JSONObject adBreak) {
-        try {
-            id = adBreak.getString("breakId");
-            timeOffsetMs = adBreak.getInt("timeOffsetMs");
-            duration = adBreak.getInt("videoAdDuration");
+    static public AdBreak fromJson(JSONObject json) throws JSONException {
+        AdBreak result = new AdBreak();
+        result.id = json.getString("breakId");
+        result.contentPositionMs = parsePosition(json.getString("contentPosition"));
+        result.duration = 0;
+        result.adUrls = new ArrayList<>();
+        result.adDurations = new ArrayList<>();
 
-            JSONArray ads = adBreak.getJSONArray("ads");
-            for (int i = 0; i < ads.length(); i++) {
-                JSONObject ad = ads.getJSONObject(i);
-                String adUrl = StringEscapeUtils.unescapeJava(ad.getString("adUrl"));
-                adUrls.add(adUrl);
-            }
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
+        JSONArray ads = json.getJSONArray("ads");
+        for (int i = 0; i < ads.length(); i++) {
+            JSONObject ad = ads.getJSONObject(i);
+            String adUrl = StringEscapeUtils.unescapeJava(ad.getString("adUrl"));
+            result.adUrls.add(adUrl);
+
+            int adDuration = ad.getInt("duration");
+            result.adDurations.add(adDuration);
+
+            result.duration += adDuration;
         }
+        return result;
+    }
+
+    static public long parsePosition(String hhmmss) throws JSONException {
+        if (hhmmss == null) throw new JSONException("missing contentPosition");
+        String[] parts = hhmmss.split(":");
+        if (parts.length < 1 || parts.length > 3) throw new JSONException("invalid contentPosition: " + hhmmss);
+        int seconds = 0;
+        for(int i = 0; i < parts.length; i++) {
+            int timeValue = Integer.parseInt(parts[i]);
+            seconds = seconds * 60 + timeValue;
+        }
+        return (long) seconds * 1000;
     }
 
     public String getFirstAd() {

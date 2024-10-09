@@ -2,8 +2,9 @@ package com.truex.referenceapp.player;
 
 import android.util.Log;
 
-import com.google.android.exoplayer2.PlaybackException;
-import com.google.android.exoplayer2.Player;
+import androidx.annotation.NonNull;
+import androidx.media3.common.PlaybackException;
+import androidx.media3.common.Player;
 
 /**
  * This class simply listens for playback events and informs the listeners when any playback events
@@ -12,7 +13,7 @@ import com.google.android.exoplayer2.Player;
 public class PlayerEventListener implements Player.Listener {
     private static final String CLASSTAG = PlayerEventListener.class.getSimpleName();
 
-    private PlaybackStateListener listener;
+    private final PlaybackStateListener listener;
     private boolean playbackDidStart;
 
     public PlayerEventListener(PlaybackStateListener listener) {
@@ -20,7 +21,7 @@ public class PlayerEventListener implements Player.Listener {
     }
 
     @Override
-    public void onPlayerError(PlaybackException error) {
+    public void onPlayerError(@NonNull PlaybackException error) {
         // Just report errors, don't cancel the stream, as there can be spurious MediaCodecVideoRenderer exceptions
         // for simple .mp4 streams, even from videos playing in a web view, not technically even related to
         // the current player instance.
