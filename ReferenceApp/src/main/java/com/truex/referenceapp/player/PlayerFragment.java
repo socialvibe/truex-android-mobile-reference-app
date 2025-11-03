@@ -14,16 +14,18 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.MediaItem;
-import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
-import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.ProgressiveMediaSource;
-import com.google.android.exoplayer2.ui.PlayerView;
-import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
-import com.google.android.exoplayer2.util.Util;
+import androidx.media3.exoplayer.ExoPlayer;
+import androidx.media3.common.MediaItem;
+import androidx.media3.common.Player;
+import androidx.media3.exoplayer.source.ConcatenatingMediaSource2;
+import androidx.media3.exoplayer.source.MediaSource;
+import androidx.media3.exoplayer.source.ProgressiveMediaSource;
+import androidx.media3.ui.PlayerView;
+import androidx.media3.datasource.DataSource;
+import androidx.media3.datasource.DefaultDataSource;
+import androidx.media3.datasource.DefaultHttpDataSource;
+import androidx.media3.common.util.UnstableApi;
+import androidx.media3.common.util.Util;
 import com.truex.referenceapp.R;
 import com.truex.referenceapp.ads.AdBreak;
 import com.truex.referenceapp.ads.TruexAdManager;
@@ -39,6 +41,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+@UnstableApi
 public class PlayerFragment extends Fragment implements PlaybackHandler, PlaybackStateListener {
     private static final String CLASSTAG = "PlayerFragment";
     private static final String CONTENT_STREAM_URL = "https://ctv.truex.com/assets/reference-app-stream-no-ads-720p.mp4";
@@ -245,17 +248,18 @@ public class PlayerFragment extends Fragment implements PlaybackHandler, Playbac
 
         displayMode = DisplayMode.LINEAR_ADS;
 
-        List<MediaSource> ads = new ArrayList<>();
+        ConcatenatingMediaSource2.Builder builder = new ConcatenatingMediaSource2.Builder();
 
         // Find the fallback ad videos.
         for (String url : this.currentAdBreak.adUrls) {
             if (isTruexAdUrl(url)) continue;
             Uri uri = Uri.parse(url);
             MediaSource source = new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(MediaItem.fromUri(uri));
-            ads.add(source);
+            // Add with placeholder duration of 30 seconds for ProgressiveMediaSource
+            builder.add(source, 30000L);
         }
 
-        MediaSource adPod = new ConcatenatingMediaSource(ads.toArray(new MediaSource[0]));
+        MediaSource adPod = builder.build();
         ExoPlayer player = (ExoPlayer)playerView.getPlayer();
         player.setPlayWhenReady(true);
         player.setMediaSource(adPod);
@@ -342,7 +346,10 @@ public class PlayerFragment extends Fragment implements PlaybackHandler, Playbac
     private void setupDataSourceFactory() {
         String applicationName = requireContext().getApplicationInfo().loadLabel(requireContext().getPackageManager()).toString();
         String userAgent = Util.getUserAgent(getContext(), applicationName);
-        dataSourceFactory = new DefaultDataSourceFactory(requireContext(), userAgent, null);
+        dataSourceFactory = new DefaultDataSource.Factory(
+                requireContext(),
+                new DefaultHttpDataSource.Factory().setUserAgent(userAgent)
+        );
     }
 
     /**
