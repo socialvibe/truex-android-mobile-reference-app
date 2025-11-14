@@ -8,7 +8,6 @@ import android.view.WindowManager;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.truex.referenceapp.detail.DetailFragment;
-import com.truex.referenceapp.player.PlayerFragment;
 
 public class MainActivity extends AppCompatActivity {
     private static final String CLASSTAG = "MainActivity";
