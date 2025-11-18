@@ -114,7 +114,7 @@ public class UnlockFragment extends Fragment implements View.OnClickListener {
             } else {
                 toast("Not true[X] ad");
             }
-        } catch (JSONException e) {
+        } catch (Exception e) {
             toast("Error parsing vastConfig response as JSON");
         }
     }

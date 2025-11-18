@@ -1,38 +1,82 @@
 package com.truex.referenceapp.ads;
 
-import org.apache.commons.text.StringEscapeUtils;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents an ad break (preroll, midroll, postroll) with state tracking.
+ */
 public class AdBreak {
-    public String id;
-    public int timeOffsetMs;
-    public int duration;
-    public boolean viewed = false;
-    public List<String> adUrls = new ArrayList<>();
+    private String breakId;
+    private int timeOffsetMs;
+    private List<Ad> ads;
 
-    public void parseJson(JSONObject adBreak) {
-        try {
-            id = adBreak.getString("breakId");
-            timeOffsetMs = adBreak.getInt("timeOffsetMs");
-            duration = adBreak.getInt("videoAdDuration");
+    // State tracking
+    private boolean started = false;
+    private boolean completed = false;
+    private int currentAdIndex = 0;
 
-            JSONArray ads = adBreak.getJSONArray("ads");
-            for (int i = 0; i < ads.length(); i++) {
-                JSONObject ad = ads.getJSONObject(i);
-                String adUrl = StringEscapeUtils.unescapeJava(ad.getString("adUrl"));
-                adUrls.add(adUrl);
-            }
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
+    public AdBreak(String breakId, int timeOffsetMs, List<Ad> ads) {
+        this.breakId = breakId;
+        this.timeOffsetMs = timeOffsetMs;
+        this.ads = ads;
     }
 
-    public String getFirstAd() {
-        return adUrls != null && !adUrls.isEmpty() ? adUrls.get(0) : null;
+    public String getBreakId() {
+        return breakId;
+    }
+
+    public int getTimeOffsetMs() {
+        return timeOffsetMs;
+    }
+
+    public List<Ad> getAds() {
+        return ads;
+    }
+
+    public boolean isStarted() {
+        return started;
+    }
+
+    public void setStarted(boolean started) {
+        this.started = started;
+    }
+
+    public boolean isCompleted() {
+        return completed;
+    }
+
+    public void setCompleted(boolean completed) {
+        this.completed = completed;
+    }
+
+    public int getCurrentAdIndex() {
+        return currentAdIndex;
+    }
+
+    /**
+     * Get the current ad in the sequence
+     */
+    public Ad getCurrentAd() {
+        if (currentAdIndex < ads.size()) {
+            return ads.get(currentAdIndex);
+        }
+        return null;
+    }
+
+    /**
+     * Move to the next ad in the sequence and return it
+     */
+    public Ad getNextAd() {
+        currentAdIndex++;
+        return getCurrentAd();
+    }
+
+    /**
+     * Reset the ad break to play from the beginning
+     */
+    public void reset() {
+        started = false;
+        completed = false;
+        currentAdIndex = 0;
     }
 }
